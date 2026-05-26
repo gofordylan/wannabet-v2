@@ -1,3 +1,4 @@
+import './rpc-monitor.js'
 import { ponder } from 'ponder:registry'
 import { bet, betCreatedEvent, factoryBetCreatedEvent } from 'ponder:schema'
 import { BET_FACTORY_V1, BET_FACTORY_V2 } from 'shared'
