@@ -1,6 +1,7 @@
 import { ponder } from 'ponder:registry'
 import { bet, betCreatedEvent, factoryBetCreatedEvent } from 'ponder:schema'
 import { BET_FACTORY_V1, BET_FACTORY_V2 } from 'shared'
+import { touchWatchdog } from './watchdog'
 
 const FACTORY_ADDRESSES = new Set([
   BET_FACTORY_V1.address.toLowerCase(),
@@ -18,6 +19,7 @@ function detectSource(txTo: string | null): string | null {
 }
 
 ponder.on('BetFactory:BetCreated', async ({ event, context }) => {
+  touchWatchdog(event.block.number)
   await context.db.insert(factoryBetCreatedEvent).values({
     ...event.args,
     factory: event.log.address,
@@ -26,6 +28,7 @@ ponder.on('BetFactory:BetCreated', async ({ event, context }) => {
 })
 
 ponder.on('Bet:BetCreated', async ({ event, context }) => {
+  touchWatchdog(event.block.number)
   // V1 ABI: 'resolveBy' was the judge deadline (no separate endsBy)
   // V2 ABI: 'endsBy' is when outcome must be known, judgeDeadline = endsBy + 30 days
   const judgeDeadline = Number(event.args.resolveBy)
@@ -51,12 +54,14 @@ ponder.on('Bet:BetCreated', async ({ event, context }) => {
 })
 
 ponder.on('Bet:BetAccepted', async ({ event, context }) => {
+  touchWatchdog(event.block.number)
   await context.db.update(bet, { address: event.log.address }).set({
     acceptedAt: Number(event.block.timestamp),
   })
 })
 
 ponder.on('Bet:BetResolved', async ({ event, context }) => {
+  touchWatchdog(event.block.number)
   await context.db.update(bet, { address: event.log.address }).set({
     winner: event.args.winner,
     resolvedAt: Number(event.block.timestamp),
@@ -64,6 +69,7 @@ ponder.on('Bet:BetResolved', async ({ event, context }) => {
 })
 
 ponder.on('Bet:BetCancelled', async ({ event, context }) => {
+  touchWatchdog(event.block.number)
   await context.db.update(bet, { address: event.log.address }).set({
     cancelledAt: Number(event.block.timestamp),
   })
