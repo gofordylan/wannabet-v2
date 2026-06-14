@@ -9,7 +9,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@neynar/nodejs-sdk": "^3.117.0",
     "abitype": "^0.10.2",
     "hono": "^4.5.0",
     "pg": "^8.19.0",

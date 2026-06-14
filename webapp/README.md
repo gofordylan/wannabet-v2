@@ -1,12 +1,12 @@
 # Website
 
-A Farcaster MiniApp to interact with the WannaBet [smart contracts](../contracts/README.md), with data from the [indexer](../indexer/README.md) and [Neynar](https://neynar.com/).
+A standalone web app to interact with the WannaBet [smart contracts](../contracts/README.md), with bet data from the [indexer](../indexer/README.md) and user identity resolved via ENS (including `*.wannabet.eth` subnames).
 
-Deployed at https://heywannabet.com. You can access the MiniApp [directly here](https://farcaster.xyz/miniapps/E7dxAafMr7wy/wannabet).
+Deployed at https://app.heywannabet.com (marketing site at https://heywannabet.com).
 
 ## Usage
 
-Create a `.env.local` file and enter your enviornment variables:
+Create a `.env.local` file and enter your environment variables:
 
 ```bash
 cp .env.example .env.local

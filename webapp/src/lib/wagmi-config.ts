@@ -1,4 +1,3 @@
-import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
 import { createConfig, http } from 'wagmi'
 import { base } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
@@ -9,7 +8,7 @@ const baseRpcUrl =
 
 export const wagmiConfig = createConfig({
   chains: [base],
-  connectors: [farcasterMiniApp(), injected()],
+  connectors: [injected()],
   transports: {
     [base.id]: http(baseRpcUrl),
   },

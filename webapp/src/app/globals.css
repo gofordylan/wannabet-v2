@@ -12,9 +12,6 @@
   --muted: #a09686;
   --border: #e8e0d4;
 
-  /* Brand colors */
-  --farcaster-brand: #7f5fc7; /* Farcaster purple */
-
   /* Status colors */
   --success: #5a7a5e;
   --warning: #d4a04a;
@@ -31,7 +28,6 @@
   --color-accent: #5a7a5e;
   --color-muted: #a09686;
   --color-border: #e8e0d4;
-  --color-farcaster-brand: #7f5fc7;
   --color-success: #5a7a5e;
   --color-warning: #d4a04a;
   --color-danger: #c4654a;
@@ -63,10 +59,6 @@ body {
 /* Utility classes */
 .text-muted-foreground {
   color: var(--muted);
-}
-
-.text-farcaster-brand {
-  color: var(--farcaster-brand);
 }
 
 .no-scrollbar::-webkit-scrollbar {

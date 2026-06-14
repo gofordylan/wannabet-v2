@@ -1,6 +1,5 @@
 'use client'
 
-import { sdk } from '@farcaster/miniapp-sdk'
 import { format } from 'date-fns'
 import { ArrowUpRight, Loader2, Share2 } from 'lucide-react'
 import Image from 'next/image'
@@ -18,11 +17,9 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer'
 import { UserAvatar } from '@/components/user-avatar'
-import { useMiniApp } from '@/components/sdk-provider'
 import { useAcceptBet } from '@/hooks/useAcceptBet'
 import { useResolveBet } from '@/hooks/useResolveBet'
 import { useCancelBet } from '@/hooks/useCancelBet'
-import { useNotifications } from '@/hooks/useNotifications'
 import { BetStatus, type Bet } from 'indexer/types'
 import { getUsername } from '@/lib/utils'
 
@@ -166,7 +163,6 @@ function BetHistory({ bet, onClose }: BetHistoryProps) {
 interface ActionCardProps {
   bet: Bet
   connectedAddress?: Address
-  connectedFid?: number
   onAcceptBet: () => void
   onResolveBet: (winner: 'maker' | 'taker') => void
   onCancelBet: () => void
@@ -178,7 +174,6 @@ interface ActionCardProps {
 function ActionCard({
   bet,
   connectedAddress,
-  connectedFid,
   onAcceptBet,
   onResolveBet,
   onCancelBet,
@@ -188,19 +183,11 @@ function ActionCard({
 }: ActionCardProps) {
   const isPending = isAccepting || isResolving || isCancelling
 
-  // Normalize addresses for comparison
+  // Determine the connected user's role by wallet address
   const normalizedConnected = connectedAddress?.toLowerCase()
-
-  // Check by address OR by FID (Farcaster users can have multiple addresses)
-  const isTaker =
-    normalizedConnected === bet.taker?.address?.toLowerCase() ||
-    (connectedFid && bet.taker?.fid && connectedFid === bet.taker.fid)
-  const isMaker =
-    normalizedConnected === bet.maker?.address?.toLowerCase() ||
-    (connectedFid && bet.maker?.fid && connectedFid === bet.maker.fid)
-  const isJudge =
-    normalizedConnected === bet.judge?.address?.toLowerCase() ||
-    (connectedFid && bet.judge?.fid && connectedFid === bet.judge.fid)
+  const isTaker = normalizedConnected === bet.taker?.address?.toLowerCase()
+  const isMaker = normalizedConnected === bet.maker?.address?.toLowerCase()
+  const isJudge = normalizedConnected === bet.judge?.address?.toLowerCase()
 
   // State 3: Resolved - Winner display
   if (bet.status === BetStatus.RESOLVED && bet.winner) {
@@ -367,29 +354,29 @@ export function BetDetailDialog({
     winnerName: string | null
   }>({ show: false, winnerName: null })
   const { address } = useAccount()
-  const { isMiniApp, miniAppUser } = useMiniApp()
 
-  // Share bet functionality with composeCast in MiniApp context
+  // Share bet functionality (native share sheet, falling back to clipboard)
   const handleShare = useCallback(async (context?: 'accept' | 'resolve') => {
-    const betUrl = `https://farcaster.xyz/miniapps/DcAH-ONddWoH/wannabet/bet/${bet.address}`
-    const makerTag = bet.maker?.username ? `@${bet.maker.username}` : 'someone'
-    const takerTag = (bet.acceptedBy || bet.taker)?.username ? `@${(bet.acceptedBy || bet.taker).username}` : 'someone'
-
-    if (isMiniApp) {
-      let text: string
-      if (context === 'accept') {
-        text = `I just accepted a bet on WannaBet!\n\n"${bet.description}"\n\n${bet.amount} USDC each\n\n${makerTag} vs ${takerTag}`
-      } else if (context === 'resolve') {
-        const winnerName = showResolveSuccess.winnerName || 'someone'
-        text = `A bet was just resolved on WannaBet!\n\n"${bet.description}"\n\nWinner: @${winnerName} takes ${Number(bet.amount) * 2} USDC`
-      } else {
-        text = `Check out this bet on WannaBet!\n\n"${bet.description}"\n\n${bet.amount} USDC each\n\n${makerTag} vs ${takerTag}`
-      }
-      sdk.actions.composeCast({ text, embeds: [betUrl] })
-      return
+    const betUrl = `${window.location.origin}/bet/${bet.address}`
+    let text: string
+    if (context === 'accept') {
+      text = `I just accepted a bet on WannaBet: "${bet.description}" — ${bet.amount} USDC each.`
+    } else if (context === 'resolve') {
+      const winnerName = showResolveSuccess.winnerName || 'someone'
+      text = `A bet was resolved on WannaBet: "${bet.description}" — winner ${winnerName} takes ${Number(bet.amount) * 2} USDC.`
+    } else {
+      text = `Check out this bet on WannaBet: "${bet.description}" — ${bet.amount} USDC each.`
     }
 
-    // Fallback: copy to clipboard
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: 'WannaBet', text, url: betUrl })
+        return
+      } catch {
+        // user cancelled or share unsupported - fall through to clipboard
+      }
+    }
+
     try {
       await navigator.clipboard.writeText(betUrl)
       setShareStatus('copied')
@@ -397,10 +384,7 @@ export function BetDetailDialog({
     } catch (err) {
       console.error('Failed to copy:', err)
     }
-  }, [bet, isMiniApp, showResolveSuccess.winnerName])
-
-  // Notification hooks
-  const { notifyBetAccepted, notifyBetResolved, notifyBetCancelled } = useNotifications()
+  }, [bet, showResolveSuccess.winnerName])
 
   // Contract interaction hooks
   const {
@@ -427,10 +411,9 @@ export function BetDetailDialog({
   // Watch for successful accept and show success state
   useEffect(() => {
     if (acceptPhase === 'success') {
-      notifyBetAccepted(bet)
       setShowAcceptSuccess(true)
     }
-  }, [acceptPhase, bet, notifyBetAccepted])
+  }, [acceptPhase])
 
   const handleResolveBet = async (winner: 'maker' | 'taker') => {
     const winnerAddress =
@@ -440,11 +423,6 @@ export function BetDetailDialog({
     const winnerUser = winner === 'maker' ? bet.maker : bet.acceptedBy
     if (winnerAddress) {
       await submitResolve(winnerAddress)
-      // Notify winner and loser
-      notifyBetResolved({
-        ...bet,
-        winner: { address: winnerAddress },
-      })
       // Show success state
       setShowResolveSuccess({
         show: true,
@@ -455,10 +433,6 @@ export function BetDetailDialog({
 
   const handleCancelBet = async () => {
     const success = await submitCancel()
-    // Notify taker that bet was cancelled (only if bet was PENDING)
-    if (success && bet.status === BetStatus.PENDING) {
-      notifyBetCancelled(bet)
-    }
     // Show success state
     if (success) {
       setShowCancelSuccess(true)
@@ -499,7 +473,7 @@ export function BetDetailDialog({
                 onClick={() => handleShare('accept')}
               >
                 <Share2 className="mr-2 h-4 w-4" />
-                {isMiniApp ? 'Share on Farcaster' : shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
+                {shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
               </Button>
               <Button
                 variant="outline"
@@ -557,7 +531,7 @@ export function BetDetailDialog({
                 onClick={() => handleShare('resolve')}
               >
                 <Share2 className="mr-2 h-4 w-4" />
-                {isMiniApp ? 'Share on Farcaster' : shareStatus === 'copied' ? 'Copied!' : 'Share Result'}
+                {shareStatus === 'copied' ? 'Copied!' : 'Share Result'}
               </Button>
               <Button
                 variant="outline"
@@ -583,7 +557,7 @@ export function BetDetailDialog({
             className="absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-sm text-wb-taupe transition-colors hover:bg-wb-sand hover:text-wb-brown"
           >
             <Share2 className="h-4 w-4" />
-            {isMiniApp ? 'Share' : shareStatus === 'copied' ? 'Copied!' : 'Share'}
+            {shareStatus === 'copied' ? 'Copied!' : 'Share'}
           </button>
           {/* Status Pennant - Top right */}
           <div className="absolute right-4 top-0">
@@ -670,7 +644,6 @@ export function BetDetailDialog({
           <ActionCard
             bet={bet}
             connectedAddress={address}
-            connectedFid={miniAppUser?.fid}
             onAcceptBet={handleAcceptBet}
             onResolveBet={handleResolveBet}
             onCancelBet={handleCancelBet}
@@ -681,8 +654,7 @@ export function BetDetailDialog({
 
           {/* USDC Balance - Show for takers of pending bets */}
           {bet.status === BetStatus.PENDING &&
-            (address?.toLowerCase() === bet.taker.address?.toLowerCase() ||
-              miniAppUser?.fid === bet.taker.fid) && (
+            address?.toLowerCase() === bet.taker.address?.toLowerCase() && (
               <div className="-mt-2 text-center">
                 <UsdcBalance />
               </div>

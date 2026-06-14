@@ -1,13 +1,13 @@
 'use client'
 
-import type { FarcasterUser } from 'indexer/types'
+import type { User } from 'indexer/types'
 import { Search } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UserAvatar } from '@/components/user-avatar'
-import { cn } from '@/lib/utils'
+import { cn, getUsername, shortenAddress } from '@/lib/utils'
 
 interface UserSearchProps {
   label: string
@@ -15,19 +15,16 @@ interface UserSearchProps {
   helperText?: string
   required?: boolean
   value: string
-  onChange: (value: string, user?: FarcasterUser) => void
-  excludeFids?: number[]
+  onChange: (value: string, user?: User) => void
+  excludeAddresses?: string[]
   labelClassName?: string
   inputClassName?: string
 }
 
-const EMPTY_ARRAY: number[] = []
+const EMPTY_ARRAY: string[] = []
 
-function stripLeadingAt(query: string): string {
-  return query.startsWith('@') ? query.slice(1) : query
-}
-
-async function searchUsers(query: string): Promise<FarcasterUser[]> {
+// Resolve an ENS name (incl. *.wannabet.eth subnames) or a raw 0x address.
+async function searchUsers(query: string): Promise<User[]> {
   const response = await fetch(
     `/api/users/search?q=${encodeURIComponent(query)}`
   )
@@ -40,31 +37,30 @@ async function searchUsers(query: string): Promise<FarcasterUser[]> {
 
 export function UserSearch({
   label,
-  placeholder = 'username',
+  placeholder = 'name.eth or 0x address',
   helperText,
   required = false,
   value,
   onChange,
-  excludeFids = EMPTY_ARRAY,
+  excludeAddresses = EMPTY_ARRAY,
   labelClassName,
   inputClassName,
 }: UserSearchProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState(value)
-  const [users, setUsers] = useState<FarcasterUser[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<FarcasterUser | undefined>()
+  const [selectedUser, setSelectedUser] = useState<User | undefined>()
 
   const lastSearchRef = useRef<string>('')
 
-  // Search function
   const performSearch = useCallback(
     async (query: string) => {
-      const trimmedQuery = stripLeadingAt(query.trim())
+      const trimmedQuery = query.trim()
 
       if (
         !trimmedQuery ||
-        trimmedQuery.length < 2 ||
+        trimmedQuery.length < 3 ||
         lastSearchRef.current === trimmedQuery
       ) {
         return
@@ -75,8 +71,9 @@ export function UserSearch({
 
       try {
         const results = await searchUsers(trimmedQuery)
+        const excluded = new Set(excludeAddresses.map((a) => a.toLowerCase()))
         const filtered = results.filter(
-          (user) => user.fid !== null && !excludeFids.includes(user.fid)
+          (user) => user.address && !excluded.has(user.address.toLowerCase())
         )
         setUsers(filtered.slice(0, 10))
       } catch (error) {
@@ -86,13 +83,13 @@ export function UserSearch({
         setIsLoading(false)
       }
     },
-    [excludeFids]
+    [excludeAddresses]
   )
 
   // Debounced search effect
   useEffect(() => {
-    const stripped = stripLeadingAt(searchQuery.trim())
-    if (!stripped || stripped.length < 2) {
+    const stripped = searchQuery.trim()
+    if (!stripped || stripped.length < 3) {
       setUsers([])
       lastSearchRef.current = ''
       return
@@ -100,21 +97,21 @@ export function UserSearch({
 
     const timeoutId = setTimeout(() => {
       performSearch(searchQuery)
-    }, 300)
+    }, 350)
 
     return () => {
       clearTimeout(timeoutId)
     }
   }, [searchQuery, performSearch])
 
-  const handleUserSelect = (user: FarcasterUser) => {
-    const username = user.username || ''
-    setSearchQuery(username)
+  const handleUserSelect = (user: User) => {
+    const display = getUsername(user)
+    setSearchQuery(display)
     setSelectedUser(user)
-    onChange(username, user)
+    onChange(user.address, user)
     setIsFocused(false)
     setUsers([])
-    lastSearchRef.current = username
+    lastSearchRef.current = display
   }
 
   const handleInputChange = (newValue: string) => {
@@ -146,7 +143,7 @@ export function UserSearch({
         <div className="border-primary bg-primary/10 flex h-10 items-center justify-between gap-2 rounded-md border-2 px-3">
           <div className="flex items-center gap-2">
             <UserAvatar user={selectedUser} size="sm" clickable={false} />
-            <p className="text-sm font-medium">@{selectedUser.username}</p>
+            <p className="text-sm font-medium">{getUsername(selectedUser)}</p>
           </div>
           <button
             type="button"
@@ -174,35 +171,35 @@ export function UserSearch({
             className={cn('h-10 pl-9', inputClassName)}
           />
 
-          {/* Dropdown with user suggestions */}
-          {isFocused && stripLeadingAt(searchQuery.trim()).length >= 2 && (
+          {/* Dropdown with resolved suggestion */}
+          {isFocused && searchQuery.trim().length >= 3 && (
             <div className="bg-background absolute top-full z-50 mt-1 max-h-[280px] w-full overflow-y-auto rounded-lg border shadow-lg">
               {isLoading ? (
                 <div className="text-muted-foreground p-4 text-center text-sm">
-                  Searching...
+                  Resolving...
                 </div>
               ) : users.length > 0 ? (
                 users.map((user) => (
                   <button
-                    key={user.fid ?? user.address}
+                    key={user.address}
                     type="button"
                     onClick={() => handleUserSelect(user)}
-                    className="hover:bg-farcaster-brand/20 flex w-full items-center gap-3 border-b p-3 text-left transition-colors last:border-b-0"
+                    className="hover:bg-primary/10 flex w-full items-center gap-3 border-b p-3 text-left transition-colors last:border-b-0"
                   >
                     <UserAvatar user={user} size="md" clickable={false} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold">
-                        {user.displayName}
+                        {getUsername(user)}
                       </p>
                       <p className="text-muted-foreground text-sm">
-                        @{user.username}
+                        {shortenAddress(user.address)}
                       </p>
                     </div>
                   </button>
                 ))
               ) : (
                 <div className="text-muted-foreground p-4 text-center text-sm">
-                  No users found
+                  No match. Enter a full ENS name or 0x address.
                 </div>
               )}
             </div>

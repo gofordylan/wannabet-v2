@@ -3,11 +3,11 @@
 import Link from 'next/link'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { FarcasterUser } from 'indexer/types'
+import type { User } from 'indexer/types'
 import { getUsername } from '@/lib/utils'
 
 interface UserAvatarProps {
-  user: FarcasterUser
+  user: User
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   clickable?: boolean
 }
@@ -26,33 +26,29 @@ export function UserAvatar({
   }
 
   const getFallbackInitials = () => {
-    const name = user.displayName || getUsername(user)
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .filter(Boolean)
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
+    if (user.ensName) {
+      return user.ensName.replace(/\.eth$/, '').slice(0, 2).toUpperCase()
+    }
+    // Fall back to the first two hex characters of the address
+    return user.address.slice(2, 4).toUpperCase()
   }
 
   const avatar = (
     <Avatar className={sizeClasses[size]}>
-      <AvatarImage src={user.pfpUrl ?? undefined} alt={user.displayName || user.username || undefined} />
+      <AvatarImage src={user.ensAvatar ?? undefined} alt={getUsername(user)} />
       <AvatarFallback>{getFallbackInitials()}</AvatarFallback>
     </Avatar>
   )
 
-  // Don't make clickable if user doesn't have a Farcaster account
-  if (!clickable || !user.fid) {
+  if (!clickable) {
     return avatar
   }
 
   return (
     <Link
-      href={`/profile/${user.fid}`}
+      href={`/profile/${user.address}`}
       className="inline-block transition-opacity hover:opacity-80"
-      title={`@${getUsername(user)}`}
+      title={getUsername(user)}
     >
       {avatar}
     </Link>

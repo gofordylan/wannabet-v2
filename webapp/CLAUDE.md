@@ -1,6 +1,6 @@
 # WannaBet Webapp
 
-Next.js frontend for the WannaBet peer-to-peer betting app. Runs as a Farcaster MiniApp.
+Next.js frontend for the WannaBet peer-to-peer betting app. A standalone web app served at app.heywannabet.com.
 
 ## Tech Stack
 
@@ -9,7 +9,7 @@ Next.js frontend for the WannaBet peer-to-peer betting app. Runs as a Farcaster 
 - **UI:** Tailwind v4, Radix UI, vaul (drawers), lucide-react icons
 - **Font:** Quicksand (weights 400, 500, 600, 700)
 - **Data:** React Query, Ponder indexer (direct fetch)
-- **MiniApp:** @farcaster/miniapp-sdk for Farcaster frame integration
+- **Identity:** ENS names + avatars (incl. `*.wannabet.eth` subnames); wallet auth via wagmi `injected`
 
 ## Directory Structure
 
@@ -20,19 +20,17 @@ src/
 │   ├── page.tsx              # Home - bet list
 │   ├── globals.css           # Tailwind + CSS variables
 │   ├── bet/[id]/page.tsx     # Bet detail page
-│   └── profile/[fid]/page.tsx
+│   └── profile/[address]/page.tsx
 ├── components/
 │   ├── bets-table.tsx        # Bet list cards
 │   ├── bet-detail-dialog.tsx # Full bet view + actions (Drawer)
 │   ├── create-bet-dialog.tsx # Create bet form (Drawer)
-│   ├── bet-status-badge.tsx  # Status badge component
 │   ├── status-pennant.tsx    # Status pill badge (rounded-full, solid color)
 │   ├── user-avatar.tsx       # Avatar with fallback
-│   ├── user-search.tsx       # Farcaster user autocomplete
+│   ├── user-search.tsx       # ENS / address resolver input
 │   ├── connect-wallet-button.tsx
 │   ├── bottom-nav.tsx        # Mobile navigation
 │   ├── welcome-modal.tsx
-│   ├── sdk-provider.tsx      # Farcaster MiniApp context
 │   ├── wagmi-provider.tsx    # Web3 provider
 │   ├── theme-provider.tsx    # Light/dark theme
 │   └── ui/                   # Shadcn-style Radix primitives
@@ -44,7 +42,7 @@ src/
 └── hooks/
     ├── useBets.ts            # React Query for all bets
     ├── useBet.ts             # React Query for single bet
-    └── useFarcasterProfile.ts
+    └── useProfile.ts         # React Query for an address's ENS profile
 ```
 
 ## Color Palette — Soft Clay
@@ -61,7 +59,6 @@ CSS variables defined in `globals.css`. Use via Tailwind classes like `bg-primar
 | `accent`          | #5a7a5e | Highlights          |
 | `muted`           | #a09686 | Secondary text      |
 | `border`          | #e8e0d4 | Borders             |
-| `farcaster-brand` | #7f5fc7 | Farcaster purple    |
 
 ### WannaBet Brand Colors (wb-\*)
 
@@ -92,16 +89,12 @@ CSS variables defined in `globals.css`. Use via Tailwind classes like `bg-primar
 
 ```tsx
 <ThemeProvider>
-  <SdkProvider>
+  <WagmiProvider>
     {' '}
-    {/* Farcaster MiniApp SDK */}
-    <WagmiProvider>
-      {' '}
-      {/* Web3/wallet */}
-      {children}
-      <BottomNav />
-    </WagmiProvider>
-  </SdkProvider>
+    {/* Web3/wallet */}
+    {children}
+    <BottomNav />
+  </WagmiProvider>
 </ThemeProvider>
 ```
 
@@ -109,7 +102,7 @@ CSS variables defined in `globals.css`. Use via Tailwind classes like `bg-primar
 
 - **Dialogs:** Use vaul `Drawer` for mobile-optimized sheets (CreateBetDialog, BetDetailDialog)
 - **Forms:** Local `useState` + `updateField()` pattern, `isFormValid` derived via useMemo
-- **User Selection:** `UserSearch` component with debounced search
+- **User Selection:** `UserSearch` resolves an ENS name (incl. `*.wannabet.eth`) or raw 0x address (debounced)
 - **Status Display:** `StatusPennant` renders solid color rounded-full pill badges with white text
 - **Winner Display:** Gold ring + small trophy overlay on avatar, grayscale on loser
 - **Cards:** White bg, rounded-3xl, shadow-clay, hover lift effect, staggered mount animation
@@ -117,8 +110,10 @@ CSS variables defined in `globals.css`. Use via Tailwind classes like `bg-primar
 ## Environment Variables
 
 ```bash
-NEYNAR_API_KEY              # Farcaster user data (used by indexer)
-NEXT_PUBLIC_BASE_URL        # App URL for server-side calls
+NEXT_PUBLIC_INDEXER_URL     # Ponder indexer base URL (defaults to hosted instance)
+NEXT_PUBLIC_BASE_URL        # Public app URL (share links + OG)
+NEXT_PUBLIC_BASE_RPC_URL    # Base RPC for wallet reads (optional)
+MAINNET_RPC_URL             # Ethereum RPC for ENS resolution (optional)
 ```
 
 ## React Query Config
@@ -138,6 +133,6 @@ pnpm lint       # Run ESLint
 - **Add color:** Edit `globals.css` @theme block, use as `bg-wb-newcolor`
 - **Contract interaction:** Import ABIs from `lib/contracts.ts`, use wagmi hooks
 - **Test bet states:** Set `DEV_SIMULATE_ROLE` in bet-detail-dialog.tsx
-- **MiniApp context:** Use `useMiniApp()` hook to check if running in Farcaster frame
+- **Identity:** Names/avatars come from ENS; use `getUsername(user)` for name-or-shortened-address
 - **React Query:** Always use React Query for data fetching instead of React's useEffect + useState.
 - **Types:** Import types from the `indexer` or `shared` package where possible. Derived types are always preferred.

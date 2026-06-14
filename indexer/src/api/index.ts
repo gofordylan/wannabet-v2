@@ -5,7 +5,7 @@ import { db } from 'ponder:api'
 import schema from 'ponder:schema'
 
 import { getEnrichedBets } from './handlers/bets'
-import { fetchUserByAddress } from '../neynar'
+import { fetchUserByAddress } from '../ens'
 
 const VALID_SOURCES = new Set(['fc', 'x', 'web'])
 

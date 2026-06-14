@@ -3,18 +3,17 @@
 import { Activity, ArrowLeft, Coins, Loader2, TrendingUp, Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { BetsTable } from '@/components/bets-table'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UserAvatar } from '@/components/user-avatar'
 import { useBets } from '@/hooks/useBets'
-import { BetStatus, type Bet, type FarcasterUser } from 'indexer/types'
-import { getUsername } from '@/lib/utils'
+import { BetStatus, type Bet, type User } from 'indexer/types'
+import { getUsername, shortenAddress } from '@/lib/utils'
 
 interface UserStats {
-  fid: number
   totalBets: number
   activeBets: number
   wonBets: number
@@ -60,7 +59,6 @@ function getUserStats(address: string, userBets: Bet[]): UserStats {
       : 0
 
   return {
-    fid: 0,
     totalBets,
     activeBets,
     wonBets,
@@ -73,38 +71,37 @@ function getUserStats(address: string, userBets: Bet[]): UserStats {
 
 export default function ProfilePage() {
   const params = useParams()
-  const addressOrFid = params.fid as string
+  const address = params.address as string
 
   const betsQuery = useBets()
 
   // Filter bets where the address is maker, taker, or judge
   const userBets = useMemo(() => {
     if (!betsQuery.data) return []
-    const lower = addressOrFid.toLowerCase()
+    const lower = address.toLowerCase()
     return betsQuery.data.filter(
       (bet) =>
         bet.maker.address.toLowerCase() === lower ||
         bet.taker.address.toLowerCase() === lower ||
         bet.judge.address.toLowerCase() === lower
     )
-  }, [betsQuery.data, addressOrFid])
+  }, [betsQuery.data, address])
 
   // Create a user object from the address
-  const user: FarcasterUser | null = useMemo(() => {
+  const user: User | null = useMemo(() => {
     if (userBets.length === 0) return null
-    const lower = addressOrFid.toLowerCase()
-    // Try to find the user in the bets
+    const lower = address.toLowerCase()
     const bet = userBets[0]
     if (bet.maker.address.toLowerCase() === lower) return bet.maker
     if (bet.taker.address.toLowerCase() === lower) return bet.taker
     if (bet.judge.address.toLowerCase() === lower) return bet.judge
     return null
-  }, [userBets, addressOrFid])
+  }, [userBets, address])
 
   const stats = useMemo(() => {
     if (!user) return null
-    return getUserStats(addressOrFid, userBets)
-  }, [addressOrFid, userBets, user])
+    return getUserStats(address, userBets)
+  }, [address, userBets, user])
 
   if (betsQuery.isLoading) {
     return (
@@ -161,8 +158,10 @@ export default function ProfilePage() {
           <div className="flex items-start gap-4">
             <UserAvatar user={user} size="lg" clickable={false} />
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">{user.displayName}</h1>
-              <p className="text-muted-foreground">@{getUsername(user)}</p>
+              <h1 className="text-2xl font-bold">{getUsername(user)}</h1>
+              <p className="text-muted-foreground font-mono">
+                {shortenAddress(user.address)}
+              </p>
             </div>
           </div>
         </div>

@@ -3,9 +3,10 @@ import type { Address } from 'viem'
 
 import { fetchUserByAddress } from '@/lib/indexer'
 
-export function useFarcasterProfile(address?: Address) {
+// Resolves an address to its ENS profile (name + avatar) via the indexer.
+export function useProfile(address?: Address) {
   return useQuery({
-    queryKey: ['farcaster-profile', address],
+    queryKey: ['profile', address],
     enabled: !!address,
     queryFn: () => fetchUserByAddress(address!),
   })

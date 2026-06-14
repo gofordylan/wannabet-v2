@@ -1,7 +1,6 @@
 'use client'
 
-import { sdk } from '@farcaster/miniapp-sdk'
-import type { FarcasterUser } from 'indexer/types'
+import type { User } from 'indexer/types'
 import { Loader2, Plus, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import {
@@ -28,17 +27,16 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { UsdcBalance } from '@/components/usdc-balance'
 import { UserSearch } from '@/components/user-search'
-import { useMiniApp } from '@/components/sdk-provider'
 import { useCreateBet } from '@/hooks/useCreateBet'
-import { useNotifications } from '@/hooks/useNotifications'
+import { getUsername } from '@/lib/utils'
 
 type SubmitPhase = 'idle' | 'approving' | 'creating' | 'done' | 'error'
 
 interface FormData {
   taker: string
-  takerUser?: FarcasterUser
+  takerUser?: User
   judge: string
-  judgeUser?: FarcasterUser
+  judgeUser?: User
   amount: string
   expiresAt: string
   description: string
@@ -59,8 +57,7 @@ export function CreateBetDialog() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle')
 
-  const { address, isConnected } = useAccount()
-  const { isMiniApp } = useMiniApp()
+  const { isConnected } = useAccount()
   const {
     submit: submitCreateBet,
     reset: resetCreateBet,
@@ -68,29 +65,18 @@ export function CreateBetDialog() {
     error: createError,
     betAddress,
   } = useCreateBet()
-  const { notifyBetCreated } = useNotifications()
 
-  // Sync hook phase with local phase and send notification on success
+  // Sync hook phase with local phase
   useEffect(() => {
     if (createPhase === 'approving') setPhase('approving')
     else if (createPhase === 'creating') setPhase('creating')
     else if (createPhase === 'success') {
       setPhase('done')
-      // Send notification to taker
-      if (betAddress && formData.takerUser?.fid) {
-        notifyBetCreated({
-          address: betAddress,
-          description: formData.description,
-          amount: formData.amount,
-          maker: { fid: null, username: 'Someone' }, // We don't have maker's username here
-          taker: { fid: formData.takerUser.fid },
-        })
-      }
     } else if (createPhase === 'error') {
       setPhase('error')
       setErrorMessage(createError)
     }
-  }, [createPhase, createError, betAddress, formData, notifyBetCreated])
+  }, [createPhase, createError])
 
   // Open dialog via #create hash
   useEffect(() => {
@@ -138,22 +124,21 @@ export function CreateBetDialog() {
     resetCreateBet()
   }, [resetCreateBet])
 
-  // Share bet functionality
+  // Share bet functionality (native share sheet, falling back to clipboard)
   const handleShare = useCallback(async () => {
     if (!betAddress) return
-    const betUrl = `https://farcaster.xyz/miniapps/DcAH-ONddWoH/wannabet/bet/${betAddress}`
+    const betUrl = `${window.location.origin}/bet/${betAddress}`
+    const text = `I just created a bet on WannaBet: "${formData.description}" — ${formData.amount} USDC each.`
 
-    if (isMiniApp) {
-      const takerTag = formData.takerUser?.username ? `@${formData.takerUser.username}` : 'someone'
-      const judgeTag = formData.judgeUser?.username ? `@${formData.judgeUser.username}` : 'a judge'
-      sdk.actions.composeCast({
-        text: `I just created a bet on WannaBet!\n\n"${formData.description}"\n\n${formData.amount} USDC each\n\n${takerTag} vs me, judged by ${judgeTag}`,
-        embeds: [betUrl],
-      })
-      return
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: 'WannaBet', text, url: betUrl })
+        return
+      } catch {
+        // user cancelled or share unsupported - fall through to clipboard
+      }
     }
 
-    // Fallback: copy to clipboard
     try {
       await navigator.clipboard.writeText(betUrl)
       setShareStatus('copied')
@@ -161,7 +146,7 @@ export function CreateBetDialog() {
     } catch (err) {
       console.error('Failed to copy:', err)
     }
-  }, [betAddress, isMiniApp, formData.description, formData.amount, formData.takerUser?.username, formData.judgeUser?.username])
+  }, [betAddress, formData.description, formData.amount])
 
   // Update form field
   const updateField = useCallback(
@@ -246,7 +231,8 @@ export function CreateBetDialog() {
               </p>
               <p className="text-wb-taupe text-sm">
                 Your bet has been created on Base. Waiting for{' '}
-                {formData.takerUser?.username || 'opponent'} to accept.
+                {formData.takerUser ? getUsername(formData.takerUser) : 'opponent'}{' '}
+                to accept.
               </p>
               <div className="flex flex-col gap-2 pt-4">
                 <Button
@@ -255,7 +241,7 @@ export function CreateBetDialog() {
                   onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
-                  {isMiniApp ? 'Share on Farcaster' : shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
+                  {shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
                 </Button>
                 <Button
                   variant="outline"
@@ -374,7 +360,7 @@ export function CreateBetDialog() {
               {/* Judge */}
               <UserSearch
                 label="Who will judge"
-                placeholder="agentjudge"
+                placeholder="judge.eth or 0x address"
                 value={formData.judge}
                 required
                 onChange={(value, user) => {

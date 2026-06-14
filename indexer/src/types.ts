@@ -1,7 +1,7 @@
 import { getEnrichedBets } from './api/handlers/bets'
 
 // Re-export base types
-export { BetStatus, SUPPORTED_ASSETS, type Asset, type FarcasterUser } from './lib/constants'
+export { BetStatus, SUPPORTED_ASSETS, type Asset, type User } from './lib/constants'
 
 // Helper type to convert bigints to strings (matches JSON serialization)
 type ReplaceBigInts<T> = T extends bigint

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-WannaBet is a peer-to-peer betting app on Farcaster + Base blockchain. Users create trustless wagers using USDC smart contract escrow.
+WannaBet is a peer-to-peer betting app on the Base blockchain, deployed as a standalone web app (heywannabet.com / app.heywannabet.com). Users create trustless wagers using USDC smart contract escrow.
 
 ## Monorepo Structure
 
@@ -46,7 +46,7 @@ pnpm prettier         # Format all files
 ### Data Flow
 
 ```
-On-chain events → Ponder Indexer → /api/bets → Neynar enrichment → React Query → UI
+On-chain events → Ponder Indexer → /bets (ENS enrichment) → React Query → UI
 ```
 
 ### Type System
@@ -55,9 +55,9 @@ Types are centralized in the `indexer` package and re-exported:
 
 - `BetStatus` enum: PENDING, ACTIVE, JUDGING, RESOLVED, CANCELLED
 - `Bet` type: inferred from indexer API response
-- `FarcasterUser`: address + Farcaster profile data (fid, username, pfpUrl)
+- `User`: address + resolved ENS profile (ensName, ensAvatar)
 
-Import from `indexer/types` or `indexer/utils`.
+Import from `indexer/types`.
 
 ### Smart Contracts (Base Mainnet)
 

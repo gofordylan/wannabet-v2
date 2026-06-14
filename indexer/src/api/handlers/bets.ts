@@ -3,8 +3,8 @@ import { desc, eq } from 'ponder'
 import { db } from 'ponder:api'
 import schema from 'ponder:schema'
 
-import { BetStatus, FarcasterUser, SUPPORTED_ASSETS } from '../../lib/constants'
-import { fetchUsersByAddresses } from '../../neynar'
+import { BetStatus, User, SUPPORTED_ASSETS } from '../../lib/constants'
+import { fetchUsersByAddresses } from '../../ens'
 
 // Direct PostgreSQL connection for reading source overrides
 const readPool = process.env.DATABASE_URL
@@ -37,13 +37,11 @@ async function getSourceOverrides(): Promise<Map<string, string>> {
 }
 
 // Create a placeholder user from an address
-function createPlaceholderUser(address: string): FarcasterUser {
+function createPlaceholderUser(address: string): User {
   return {
     address,
-    fid: null,
-    username: null,
-    displayName: null,
-    pfpUrl: null,
+    ensName: null,
+    ensAvatar: null,
   }
 }
 
@@ -115,7 +113,7 @@ export async function getEnrichedBets(options?: { source?: string }) {
   const usersMap = await fetchUsersByAddresses([...allAddresses])
 
   // Helper to get user from map or create placeholder
-  const getUser = (address: string): FarcasterUser =>
+  const getUser = (address: string): User =>
     usersMap.get(address.toLowerCase()) ?? createPlaceholderUser(address)
 
   const enriched = bets.map((bet) => {

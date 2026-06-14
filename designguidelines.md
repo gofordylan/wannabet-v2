@@ -37,7 +37,6 @@ WannaBet uses a **warm, playful aesthetic** with Comic Sans font and earthy tone
 
 - `--primary`: amber-400 (#fbbf24)
 - `--accent`: sky-400 (#38bdf8)
-- `--farcaster-brand`: #7f5fc7
 
 ## Typography
 

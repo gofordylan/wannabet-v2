@@ -27,12 +27,10 @@ export type Asset = {
 }
 
 // =============================================================================
-// FarcasterUser - enriched user data (will be populated via Neynar later)
+// User - enriched user data (address + ENS profile resolved on Ethereum mainnet)
 // =============================================================================
-export type FarcasterUser = {
+export type User = {
   address: string
-  fid: number | null
-  username: string | null
-  displayName: string | null
-  pfpUrl: string | null
+  ensName: string | null
+  ensAvatar: string | null
 }

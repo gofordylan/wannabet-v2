@@ -1,6 +1,8 @@
-import type { Bet, FarcasterUser } from 'indexer/types'
+import type { Bet, User } from 'indexer/types'
 
-const INDEXER_URL = 'https://wannabet-v2-production.up.railway.app'
+const INDEXER_URL =
+  process.env.NEXT_PUBLIC_INDEXER_URL ||
+  'https://wannabet-v2-production.up.railway.app'
 
 export async function tagBetSource(betAddress: string, source: string) {
   try {
@@ -15,7 +17,7 @@ export async function tagBetSource(betAddress: string, source: string) {
 }
 
 export async function fetchBets(): Promise<Bet[]> {
-  const response = await fetch(`${INDEXER_URL}/bets?source=fc`)
+  const response = await fetch(`${INDEXER_URL}/bets`)
 
   if (!response.ok) {
     throw new Error(`Failed to fetch bets: ${response.status}`)
@@ -33,7 +35,7 @@ export async function fetchBetById(id: string): Promise<Bet | null> {
 
 export async function fetchUserByAddress(
   address: string
-): Promise<FarcasterUser> {
+): Promise<User> {
   const response = await fetch(`${INDEXER_URL}/user/${address}`)
 
   if (!response.ok) {

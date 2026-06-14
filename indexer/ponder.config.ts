@@ -7,7 +7,8 @@ export default createConfig({
   chains: {
     base: {
       id: base.id,
-      rpc: process.env.BASE_RPC_URL,
+      // Defaults to a free public RPC; override with a dedicated endpoint in prod.
+      rpc: process.env.BASE_RPC_URL || 'https://base-rpc.publicnode.com',
       ws: process.env.BASE_WS_URL,
     },
   },

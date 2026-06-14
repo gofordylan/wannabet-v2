@@ -1,18 +1,16 @@
 {
   "name": "WannaBet",
-  "shortName": "WannaBet",
-  "manifestVersion": "1",
-  "iconUrl": "https://x.heywannabet.com/img/logo-icon.png",
-  "splashImageUrl": "https://x.heywannabet.com/img/logo.png",
-  "splashBackgroundColor": "#FEFCE8",
-  "homeUrl": "https://x.heywannabet.com",
-  "frame": {
-    "version": "1",
-    "name": "WannaBet",
-    "iconUrl": "https://x.heywannabet.com/img/logo-icon.png",
-    "splashImageUrl": "https://x.heywannabet.com/img/logo.png",
-    "splashBackgroundColor": "#FEFCE8",
-    "homeUrl": "https://x.heywannabet.com",
-    "webhookUrl": "https://api.neynar.com/f/app/817e51c1-3c90-452c-9bc7-aa1510944494/event"
-  }
+  "short_name": "WannaBet",
+  "description": "Peer-to-peer USDC betting, settled on Base.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf5ef",
+  "theme_color": "#c4654a",
+  "icons": [
+    {
+      "src": "/img/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }

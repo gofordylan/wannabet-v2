@@ -177,8 +177,8 @@ export function useCreateBet() {
         }
         setBetAddress(finalBetAddress)
 
-        // Tag this bet as created from the Farcaster mini-app
-        tagBetSource(finalBetAddress, 'fc')
+        // Tag this bet as created from the web app
+        tagBetSource(finalBetAddress, 'web')
 
         // Wait for indexer to pick up the new bet before refreshing
         await new Promise((resolve) => setTimeout(resolve, 5000))
