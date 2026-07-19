@@ -1,7 +1,6 @@
-import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
 import { createConfig, http } from 'wagmi'
 import { base } from 'wagmi/chains'
-import { injected } from 'wagmi/connectors'
+import { coinbaseWallet, injected } from 'wagmi/connectors'
 
 // Use custom RPC if provided, otherwise fall back to public RPC
 const baseRpcUrl =
@@ -9,7 +8,7 @@ const baseRpcUrl =
 
 export const wagmiConfig = createConfig({
   chains: [base],
-  connectors: [farcasterMiniApp(), injected()],
+  connectors: [injected(), coinbaseWallet({ appName: 'WannaBet' })],
   transports: {
     [base.id]: http(baseRpcUrl),
   },

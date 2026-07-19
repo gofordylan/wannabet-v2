@@ -1,5 +1,5 @@
 // =============================================================================
-// BetStatus - matches IBet.sol Status enum
+// BetStatus - matches IBet.sol Status enum (EXPIRED is folded into CANCELLED)
 // =============================================================================
 export enum BetStatus {
   PENDING = 'PENDING',
@@ -27,12 +27,33 @@ export type Asset = {
 }
 
 // =============================================================================
-// FarcasterUser - enriched user data (will be populated via Neynar later)
+// BetUser - a bet participant, optionally enriched with ENS data
 // =============================================================================
-export type FarcasterUser = {
+export type BetUser = {
   address: string
-  fid: number | null
-  username: string | null
-  displayName: string | null
-  pfpUrl: string | null
+  /** ENS name, if the address has a primary name set */
+  name: string | null
+  /** ENS avatar URL, if the name has one */
+  avatarUrl: string | null
+}
+
+// =============================================================================
+// Bet - enriched bet as served by /api/bets (timestamps in milliseconds)
+// =============================================================================
+export type Bet = {
+  address: string
+  description: string
+  maker: BetUser
+  taker: BetUser
+  judge: BetUser
+  asset: Asset
+  amount: string
+  status: BetStatus
+  createdAt: number
+  expiresAt: number
+  acceptBy: number
+  judgeDeadline: number
+  winner: BetUser | null
+  /** The taker, once they have accepted the bet */
+  acceptedBy: BetUser | null
 }

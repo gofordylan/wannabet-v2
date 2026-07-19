@@ -1,6 +1,7 @@
 'use client'
 
 import { X } from 'lucide-react'
+import { BetStatus } from 'shared'
 
 import { STATUS_CONFIG, StatusPennant } from '@/components/status-pennant'
 import {
@@ -9,7 +10,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { BetStatus } from 'indexer/types'
 
 interface WelcomeModalProps {
   open: boolean
@@ -28,7 +28,7 @@ const STATUS_ORDER: BetStatus[] = [
 export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white max-h-[85vh] w-[90vw] max-w-sm gap-0 overflow-hidden rounded-xl border-0 p-0 [&>button:last-child]:hidden">
+      <DialogContent className="max-h-[85vh] w-[90vw] max-w-sm gap-0 overflow-hidden rounded-xl border-0 bg-white p-0 [&>button:last-child]:hidden">
         {/* Coral Header */}
         <div className="bg-wb-coral flex items-center justify-between px-4 py-3">
           <DialogTitle className="text-wb-brown text-lg font-bold">
@@ -41,7 +41,7 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
         </div>
 
         {/* Body - Scrollable */}
-        <div className="bg-white text-wb-brown max-h-[calc(85vh-52px)] space-y-4 overflow-y-auto px-4 py-4">
+        <div className="text-wb-brown max-h-[calc(85vh-52px)] space-y-4 overflow-y-auto bg-white px-4 py-4">
           {/* What is WannaBet */}
           <section>
             <h3 className="mb-1 text-base font-bold">What is WannaBet?</h3>
@@ -117,7 +117,6 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
               })}
             </div>
           </section>
-
         </div>
       </DialogContent>
     </Dialog>

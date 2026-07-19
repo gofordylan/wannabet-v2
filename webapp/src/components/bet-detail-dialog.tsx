@@ -1,15 +1,14 @@
 'use client'
 
-import { sdk } from '@farcaster/miniapp-sdk'
 import { format } from 'date-fns'
 import { ArrowUpRight, Loader2, Share2 } from 'lucide-react'
 import Image from 'next/image'
-import { useState, useCallback, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useCallback, useEffect, useState } from 'react'
+import { type Bet, BetStatus } from 'shared'
 import type { Address } from 'viem'
+import { useAccount } from 'wagmi'
 
 import { StatusPennant } from '@/components/status-pennant'
-import { UsdcBalance } from '@/components/usdc-balance'
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
@@ -17,14 +16,12 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
+import { UsdcBalance } from '@/components/usdc-balance'
 import { UserAvatar } from '@/components/user-avatar'
-import { useMiniApp } from '@/components/sdk-provider'
 import { useAcceptBet } from '@/hooks/useAcceptBet'
-import { useResolveBet } from '@/hooks/useResolveBet'
 import { useCancelBet } from '@/hooks/useCancelBet'
-import { useNotifications } from '@/hooks/useNotifications'
-import { BetStatus, type Bet } from 'indexer/types'
-import { getUsername } from '@/lib/utils'
+import { useResolveBet } from '@/hooks/useResolveBet'
+import { getDisplayName } from '@/lib/utils'
 
 // Base scan URL for transaction links
 const BASE_SCAN_URL = 'https://basescan.org/address'
@@ -63,7 +60,7 @@ interface TimelineEventProps {
 
 function TimelineEvent({ icon, title, description, link }: TimelineEventProps) {
   return (
-    <div className="bg-white flex items-start gap-3 rounded-xl border px-4 py-3">
+    <div className="flex items-start gap-3 rounded-xl border bg-white px-4 py-3">
       <span className="text-2xl">{icon}</span>
       <div className="flex-1">
         <p className="text-wb-brown font-semibold">{title}</p>
@@ -107,22 +104,22 @@ function BetHistory({ bet, onClose }: BetHistoryProps) {
         <TimelineEvent
           icon="⏳"
           title="Bet Proposed"
-          description={`@${getUsername(bet.maker)} proposed this bet on ${format(bet.createdAt, 'MMM d, yyyy')}`}
+          description={`${getDisplayName(bet.maker)} proposed this bet on ${format(bet.createdAt, 'MMM d, yyyy')}`}
           link={contractLink}
         />
 
         {/* Bet Accepted - Show if accepted */}
-        {bet.acceptedAt && bet.acceptedBy && (
+        {bet.acceptedBy && (
           <TimelineEvent
             icon="🤝"
             title="Bet Accepted"
-            description={`@${getUsername(bet.acceptedBy)} accepted the bet on ${format(bet.acceptedAt, 'MMM d, yyyy')}`}
+            description={`${getDisplayName(bet.acceptedBy)} accepted the bet`}
             link={contractLink}
           />
         )}
 
         {/* Bet Expired - Show if cancelled and never accepted */}
-        {bet.status === BetStatus.CANCELLED && !bet.acceptedAt && (
+        {bet.status === BetStatus.CANCELLED && !bet.acceptedBy && (
           <TimelineEvent
             icon="❌"
             title="Bet Expired"
@@ -135,7 +132,7 @@ function BetHistory({ bet, onClose }: BetHistoryProps) {
           <TimelineEvent
             icon="⚖️"
             title="Winner Determined"
-            description={`@${getUsername(bet.judge)} determined @${getUsername(bet.winner)} was the winner`}
+            description={`${getDisplayName(bet.judge)} determined ${getDisplayName(bet.winner)} was the winner`}
             link={contractLink}
           />
         )}
@@ -145,7 +142,7 @@ function BetHistory({ bet, onClose }: BetHistoryProps) {
           <TimelineEvent
             icon="💸"
             title="Funds Returned"
-            description={`Funds returned to @${getUsername(bet.maker)}`}
+            description={`Funds returned to ${getDisplayName(bet.maker)}`}
             link={contractLink}
           />
         )}
@@ -166,7 +163,6 @@ function BetHistory({ bet, onClose }: BetHistoryProps) {
 interface ActionCardProps {
   bet: Bet
   connectedAddress?: Address
-  connectedFid?: number
   onAcceptBet: () => void
   onResolveBet: (winner: 'maker' | 'taker') => void
   onCancelBet: () => void
@@ -178,7 +174,6 @@ interface ActionCardProps {
 function ActionCard({
   bet,
   connectedAddress,
-  connectedFid,
   onAcceptBet,
   onResolveBet,
   onCancelBet,
@@ -191,24 +186,20 @@ function ActionCard({
   // Normalize addresses for comparison
   const normalizedConnected = connectedAddress?.toLowerCase()
 
-  // Check by address OR by FID (Farcaster users can have multiple addresses)
-  const isTaker =
-    normalizedConnected === bet.taker?.address?.toLowerCase() ||
-    (connectedFid && bet.taker?.fid && connectedFid === bet.taker.fid)
-  const isMaker =
-    normalizedConnected === bet.maker?.address?.toLowerCase() ||
-    (connectedFid && bet.maker?.fid && connectedFid === bet.maker.fid)
-  const isJudge =
-    normalizedConnected === bet.judge?.address?.toLowerCase() ||
-    (connectedFid && bet.judge?.fid && connectedFid === bet.judge.fid)
+  const isTaker = normalizedConnected === bet.taker?.address?.toLowerCase()
+  const isMaker = normalizedConnected === bet.maker?.address?.toLowerCase()
+  const isJudge = normalizedConnected === bet.judge?.address?.toLowerCase()
 
   // State 3: Resolved - Winner display
   if (bet.status === BetStatus.RESOLVED && bet.winner) {
     return (
-      <div className="bg-white rounded-xl border px-4 py-3">
+      <div className="rounded-xl border bg-white px-4 py-3">
         <div className="flex items-center justify-center gap-3">
           <span className="text-wb-brown text-sm">
-            <span className="font-bold underline decoration-wb-gold decoration-2 underline-offset-2">@{getUsername(bet.winner)}</span> won the bet!
+            <span className="decoration-wb-gold font-bold underline decoration-2 underline-offset-2">
+              {getDisplayName(bet.winner)}
+            </span>{' '}
+            won the bet!
           </span>
         </div>
       </div>
@@ -218,11 +209,11 @@ function ActionCard({
   // State 4: Cancelled
   if (bet.status === BetStatus.CANCELLED) {
     return (
-      <div className="bg-white rounded-xl border px-4 py-3">
+      <div className="rounded-xl border bg-white px-4 py-3">
         <div className="flex items-center justify-center gap-3">
           <span className="text-2xl">❌</span>
           <span className="text-wb-brown text-center text-sm">
-            @{getUsername(bet.maker)} canceled the bet and funds were returned
+            The bet was cancelled and funds were returned
           </span>
         </div>
       </div>
@@ -237,16 +228,16 @@ function ActionCard({
     // Only judge can resolve or cancel in ACTIVE/JUDGING state
     if (!isJudge) {
       return (
-        <div className="bg-white rounded-xl border px-4 py-3">
+        <div className="rounded-xl border bg-white px-4 py-3">
           <p className="text-wb-taupe text-center text-sm">
-            Waiting for @{getUsername(bet.judge)} to pick a winner
+            Waiting for {getDisplayName(bet.judge)} to pick a winner
           </p>
         </div>
       )
     }
 
     return (
-      <div className="bg-white space-y-3 rounded-xl border px-4 py-3">
+      <div className="space-y-3 rounded-xl border bg-white px-4 py-3">
         <p className="text-wb-taupe text-center text-xs">
           Pick a winner as the judge
         </p>
@@ -259,7 +250,7 @@ function ActionCard({
             {isResolving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              `@${getUsername(bet.maker)}`
+              getDisplayName(bet.maker)
             )}
           </Button>
           <Button
@@ -270,7 +261,7 @@ function ActionCard({
             {isResolving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              `@${getUsername(bet.acceptedBy)}`
+              getDisplayName(bet.acceptedBy)
             )}
           </Button>
         </div>
@@ -296,7 +287,7 @@ function ActionCard({
   // State 1: Pending - Taker can accept, Maker can cancel
   if (bet.status === BetStatus.PENDING) {
     return (
-      <div className="bg-white space-y-3 rounded-xl border px-4 py-3">
+      <div className="space-y-3 rounded-xl border bg-white px-4 py-3">
         {isTaker ? (
           <>
             <Button
@@ -318,7 +309,7 @@ function ActionCard({
         ) : isMaker ? (
           <>
             <p className="text-wb-taupe text-center text-sm">
-              Waiting for @{getUsername(bet.taker)} to accept
+              Waiting for {getDisplayName(bet.taker)} to accept
             </p>
             <Button
               onClick={onCancelBet}
@@ -335,7 +326,7 @@ function ActionCard({
           </>
         ) : (
           <p className="text-wb-taupe text-center text-sm">
-            Waiting for @{getUsername(bet.taker)} to accept. Offer ends{' '}
+            Waiting for {getDisplayName(bet.taker)} to accept. Offer ends{' '}
             {format(bet.acceptBy, 'MMM d, yyyy')}.
           </p>
         )}
@@ -367,29 +358,10 @@ export function BetDetailDialog({
     winnerName: string | null
   }>({ show: false, winnerName: null })
   const { address } = useAccount()
-  const { isMiniApp, miniAppUser } = useMiniApp()
 
-  // Share bet functionality with composeCast in MiniApp context
-  const handleShare = useCallback(async (context?: 'accept' | 'resolve') => {
-    const betUrl = `https://farcaster.xyz/miniapps/DcAH-ONddWoH/wannabet/bet/${bet.address}`
-    const makerTag = bet.maker?.username ? `@${bet.maker.username}` : 'someone'
-    const takerTag = (bet.acceptedBy || bet.taker)?.username ? `@${(bet.acceptedBy || bet.taker).username}` : 'someone'
-
-    if (isMiniApp) {
-      let text: string
-      if (context === 'accept') {
-        text = `I just accepted a bet on WannaBet!\n\n"${bet.description}"\n\n${bet.amount} USDC each\n\n${makerTag} vs ${takerTag}`
-      } else if (context === 'resolve') {
-        const winnerName = showResolveSuccess.winnerName || 'someone'
-        text = `A bet was just resolved on WannaBet!\n\n"${bet.description}"\n\nWinner: @${winnerName} takes ${Number(bet.amount) * 2} USDC`
-      } else {
-        text = `Check out this bet on WannaBet!\n\n"${bet.description}"\n\n${bet.amount} USDC each\n\n${makerTag} vs ${takerTag}`
-      }
-      sdk.actions.composeCast({ text, embeds: [betUrl] })
-      return
-    }
-
-    // Fallback: copy to clipboard
+  // Copy a link to this bet
+  const handleShare = useCallback(async () => {
+    const betUrl = `https://heywannabet.com/bet/${bet.address}`
     try {
       await navigator.clipboard.writeText(betUrl)
       setShareStatus('copied')
@@ -397,10 +369,7 @@ export function BetDetailDialog({
     } catch (err) {
       console.error('Failed to copy:', err)
     }
-  }, [bet, isMiniApp, showResolveSuccess.winnerName])
-
-  // Notification hooks
-  const { notifyBetAccepted, notifyBetResolved, notifyBetCancelled } = useNotifications()
+  }, [bet.address])
 
   // Contract interaction hooks
   const {
@@ -409,15 +378,13 @@ export function BetDetailDialog({
     phase: acceptPhase,
   } = useAcceptBet(bet.address as Address, bet.amount)
 
-  const {
-    submit: submitResolve,
-    isPending: isResolving,
-  } = useResolveBet(bet.address as Address)
+  const { submit: submitResolve, isPending: isResolving } = useResolveBet(
+    bet.address as Address
+  )
 
-  const {
-    submit: submitCancel,
-    isPending: isCancelling,
-  } = useCancelBet(bet.address as Address)
+  const { submit: submitCancel, isPending: isCancelling } = useCancelBet(
+    bet.address as Address
+  )
 
   // Handle accept bet - just trigger the submit, useEffect handles success
   const handleAcceptBet = async () => {
@@ -427,10 +394,9 @@ export function BetDetailDialog({
   // Watch for successful accept and show success state
   useEffect(() => {
     if (acceptPhase === 'success') {
-      notifyBetAccepted(bet)
       setShowAcceptSuccess(true)
     }
-  }, [acceptPhase, bet, notifyBetAccepted])
+  }, [acceptPhase])
 
   const handleResolveBet = async (winner: 'maker' | 'taker') => {
     const winnerAddress =
@@ -440,25 +406,16 @@ export function BetDetailDialog({
     const winnerUser = winner === 'maker' ? bet.maker : bet.acceptedBy
     if (winnerAddress) {
       await submitResolve(winnerAddress)
-      // Notify winner and loser
-      notifyBetResolved({
-        ...bet,
-        winner: { address: winnerAddress },
-      })
       // Show success state
       setShowResolveSuccess({
         show: true,
-        winnerName: getUsername(winnerUser),
+        winnerName: getDisplayName(winnerUser),
       })
     }
   }
 
   const handleCancelBet = async () => {
     const success = await submitCancel()
-    // Notify taker that bet was cancelled (only if bet was PENDING)
-    if (success && bet.status === BetStatus.PENDING) {
-      notifyBetCancelled(bet)
-    }
     // Show success state
     if (success) {
       setShowCancelSuccess(true)
@@ -480,26 +437,26 @@ export function BetDetailDialog({
         if (!isOpen) handleReset()
       }}
     >
-      <DrawerContent className="relative fixed bottom-0 left-0 right-0 mx-auto flex max-h-[90dvh] max-w-3xl flex-col pb-[env(safe-area-inset-bottom)]">
+      <DrawerContent className="fixed relative bottom-0 left-0 right-0 mx-auto flex max-h-[90dvh] max-w-3xl flex-col pb-[env(safe-area-inset-bottom)]">
         {/* Accept Success Overlay */}
         {showAcceptSuccess && (
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] bg-background/95 px-6 py-12">
-            <div className="text-4xl mb-4">🤝</div>
-            <p className="text-wb-brown text-lg font-semibold mb-2">
+          <div className="bg-background/95 absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] px-6 py-12">
+            <div className="mb-4 text-4xl">🤝</div>
+            <p className="text-wb-brown mb-2 text-lg font-semibold">
               Bet Accepted!
             </p>
-            <p className="text-wb-taupe text-sm text-center mb-6">
-              You&apos;re now in a bet with @{getUsername(bet.maker)} for {bet.amount} USDC each.
-              Good luck!
+            <p className="text-wb-taupe mb-6 text-center text-sm">
+              You&apos;re now in a bet with {getDisplayName(bet.maker)} for{' '}
+              {bet.amount} USDC each. Good luck!
             </p>
-            <div className="flex flex-col gap-2 w-full max-w-xs">
+            <div className="flex w-full max-w-xs flex-col gap-2">
               <Button
                 className="bg-wb-coral hover:bg-wb-coral/90 w-full text-white"
                 size="lg"
-                onClick={() => handleShare('accept')}
+                onClick={() => handleShare()}
               >
                 <Share2 className="mr-2 h-4 w-4" />
-                {isMiniApp ? 'Share on Farcaster' : shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
+                {shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
               </Button>
               <Button
                 variant="outline"
@@ -518,15 +475,15 @@ export function BetDetailDialog({
 
         {/* Cancel Success Overlay */}
         {showCancelSuccess && (
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] bg-background/95 px-6 py-12">
-            <div className="text-4xl mb-4">✅</div>
-            <p className="text-wb-brown text-lg font-semibold mb-2">
+          <div className="bg-background/95 absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] px-6 py-12">
+            <div className="mb-4 text-4xl">✅</div>
+            <p className="text-wb-brown mb-2 text-lg font-semibold">
               Bet Cancelled
             </p>
-            <p className="text-wb-taupe text-sm text-center mb-6">
+            <p className="text-wb-taupe mb-6 text-center text-sm">
               The bet has been cancelled and funds have been returned.
             </p>
-            <div className="flex flex-col gap-2 w-full max-w-xs">
+            <div className="flex w-full max-w-xs flex-col gap-2">
               <Button
                 className="bg-wb-coral hover:bg-wb-coral/90 w-full text-white"
                 size="lg"
@@ -543,21 +500,22 @@ export function BetDetailDialog({
 
         {/* Resolve Success Overlay */}
         {showResolveSuccess.show && (
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] bg-background/95 px-6 py-12">
-            <p className="text-wb-brown text-lg font-semibold mb-2">
+          <div className="bg-background/95 absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] px-6 py-12">
+            <p className="text-wb-brown mb-2 text-lg font-semibold">
               Winner Selected!
             </p>
-            <p className="text-wb-taupe text-sm text-center mb-6">
-              @{showResolveSuccess.winnerName} has been declared the winner and will receive {Number(bet.amount) * 2} USDC.
+            <p className="text-wb-taupe mb-6 text-center text-sm">
+              {showResolveSuccess.winnerName} has been declared the winner and
+              will receive {Number(bet.amount) * 2} USDC.
             </p>
-            <div className="flex flex-col gap-2 w-full max-w-xs">
+            <div className="flex w-full max-w-xs flex-col gap-2">
               <Button
                 className="bg-wb-coral hover:bg-wb-coral/90 w-full text-white"
                 size="lg"
-                onClick={() => handleShare('resolve')}
+                onClick={() => handleShare()}
               >
                 <Share2 className="mr-2 h-4 w-4" />
-                {isMiniApp ? 'Share on Farcaster' : shareStatus === 'copied' ? 'Copied!' : 'Share Result'}
+                {shareStatus === 'copied' ? 'Copied!' : 'Share Result'}
               </Button>
               <Button
                 variant="outline"
@@ -580,10 +538,10 @@ export function BetDetailDialog({
           <button
             type="button"
             onClick={() => handleShare()}
-            className="absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-sm text-wb-taupe transition-colors hover:bg-wb-sand hover:text-wb-brown"
+            className="text-wb-taupe hover:bg-wb-sand hover:text-wb-brown absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-sm transition-colors"
           >
             <Share2 className="h-4 w-4" />
-            {isMiniApp ? 'Share' : shareStatus === 'copied' ? 'Copied!' : 'Share'}
+            {shareStatus === 'copied' ? 'Copied!' : 'Share'}
           </button>
           {/* Status Pennant - Top right */}
           <div className="absolute right-4 top-0">
@@ -597,12 +555,13 @@ export function BetDetailDialog({
               className={`rounded-full ring-4 ${getStatusRingColor(bet.status)} z-10 ${
                 bet.status === BetStatus.RESOLVED &&
                 bet.winner &&
-                bet.winner.address?.toLowerCase() !== bet.maker.address?.toLowerCase()
+                bet.winner.address?.toLowerCase() !==
+                  bet.maker.address?.toLowerCase()
                   ? 'grayscale'
                   : ''
               }`}
             >
-              <UserAvatar user={bet.maker} size="2xl" clickable={false} />
+              <UserAvatar user={bet.maker} size="2xl" />
             </div>
 
             {/* Center badge - overlapping both */}
@@ -627,26 +586,23 @@ export function BetDetailDialog({
               className={`rounded-full ring-4 ${getStatusRingColor(bet.status)} ${
                 bet.status === BetStatus.RESOLVED &&
                 bet.winner &&
-                bet.winner.address?.toLowerCase() !== (bet.acceptedBy || bet.taker)?.address?.toLowerCase()
+                bet.winner.address?.toLowerCase() !==
+                  (bet.acceptedBy || bet.taker)?.address?.toLowerCase()
                   ? 'grayscale'
                   : ''
               }`}
             >
-              <UserAvatar
-                user={bet.acceptedBy || bet.taker}
-                size="2xl"
-                clickable={false}
-              />
+              <UserAvatar user={bet.acceptedBy || bet.taker} size="2xl" />
             </div>
           </div>
 
-          {/* Usernames below avatars */}
+          {/* Names below avatars */}
           <div className="mt-2 flex justify-center gap-24">
             <span className="text-wb-brown text-sm font-medium">
-              @{getUsername(bet.maker)}
+              {getDisplayName(bet.maker)}
             </span>
             <span className="text-wb-brown text-sm font-medium">
-              @{getUsername(bet.acceptedBy || bet.taker)}
+              {getDisplayName(bet.acceptedBy || bet.taker)}
             </span>
           </div>
         </DrawerHeader>
@@ -655,14 +611,14 @@ export function BetDetailDialog({
           {/* Bet Description */}
           <div className="text-center">
             <p className="text-wb-taupe text-sm">
-              @{getUsername(bet.maker)} bet that...
+              {getDisplayName(bet.maker)} bet that...
             </p>
             <h2 className="text-wb-brown mt-1 text-2xl font-bold leading-tight">
               {bet.description}
             </h2>
             <p className="text-wb-taupe mt-2 text-sm">
-              Ends: {format(bet.expiresAt, 'MMM d, yyyy')} | Judge: @
-              {getUsername(bet.judge)}
+              Ends: {format(bet.expiresAt, 'MMM d, yyyy')} | Judge:{' '}
+              {getDisplayName(bet.judge)}
             </p>
           </div>
 
@@ -670,7 +626,6 @@ export function BetDetailDialog({
           <ActionCard
             bet={bet}
             connectedAddress={address}
-            connectedFid={miniAppUser?.fid}
             onAcceptBet={handleAcceptBet}
             onResolveBet={handleResolveBet}
             onCancelBet={handleCancelBet}
@@ -681,8 +636,7 @@ export function BetDetailDialog({
 
           {/* USDC Balance - Show for takers of pending bets */}
           {bet.status === BetStatus.PENDING &&
-            (address?.toLowerCase() === bet.taker.address?.toLowerCase() ||
-              miniAppUser?.fid === bet.taker.fid) && (
+            address?.toLowerCase() === bet.taker.address?.toLowerCase() && (
               <div className="-mt-2 text-center">
                 <UsdcBalance />
               </div>

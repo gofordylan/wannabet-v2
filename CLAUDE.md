@@ -4,14 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-WannaBet is a peer-to-peer betting app on Farcaster + Base blockchain. Users create trustless wagers using USDC smart contract escrow.
+WannaBet is a peer-to-peer betting app on Base. Users create trustless wagers using USDC smart contract escrow. Live at https://heywannabet.com.
 
 ## Monorepo Structure
 
-This is a pnpm monorepo with four packages:
+This is a pnpm monorepo with three packages:
 
 - **webapp/** - Next.js 16 frontend (React 19, Tailwind v4, wagmi)
-- **indexer/** - Ponder indexer for on-chain events
 - **contracts/** - Hardhat 3 smart contracts (Solidity)
 - **shared/** - Shared types and contract ABIs
 
@@ -25,13 +24,11 @@ pnpm install
 pnpm dev              # Run webapp + shared in watch mode
 pnpm dev:web          # Webapp only (Next.js)
 pnpm dev:shared       # Shared package watch mode
-pnpm dev:indexer      # Run Ponder indexer
 
 # Build
 pnpm build            # Build all packages
-pnpm build:web        # Webapp only
+pnpm build:web        # Webapp only (regenerates bet seed first)
 pnpm build:shared     # Shared package
-pnpm build:indexer    # Indexer package
 
 # Contracts
 pnpm --filter contracts test      # Run contract tests
@@ -45,19 +42,25 @@ pnpm prettier         # Format all files
 
 ### Data Flow
 
+No indexer, no database, no paid services. The webapp reads the chain directly:
+
 ```
-On-chain events → Ponder Indexer → /api/bets → Neynar enrichment → React Query → UI
+Build time:  BetCreated logs (free public RPC) → webapp/src/generated/bet-seed.json
+Runtime:     seed + incremental log scan + multicall bet() → /api/bets → ENS enrichment → React Query → UI
 ```
+
+- `webapp/src/lib/bets-server.ts` - all chain reading + caching (unstable_cache, 30s TTL, tag `bets`)
+- `webapp/scripts/generate-bet-seed.mjs` - prebuild historical scan (fails soft; runtime scans the gap)
+- `POST /api/bets/revalidate` - called after on-chain writes to bust the cache
+- `GET /api/resolve?name=|address=` - ENS forward/reverse resolution for the UI
 
 ### Type System
 
-Types are centralized in the `indexer` package and re-exported:
+Types live in the `shared` package:
 
 - `BetStatus` enum: PENDING, ACTIVE, JUDGING, RESOLVED, CANCELLED
-- `Bet` type: inferred from indexer API response
-- `FarcasterUser`: address + Farcaster profile data (fid, username, pfpUrl)
-
-Import from `indexer/types` or `indexer/utils`.
+- `Bet` type: enriched bet as served by `/api/bets`
+- `BetUser`: address + optional ENS name/avatar
 
 ### Smart Contracts (Base Mainnet)
 
@@ -65,6 +68,9 @@ Import from `indexer/types` or `indexer/utils`.
 - **USDC**: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` - Default escrow asset
 
 Contract ABIs are exported from the `shared` package (`BET_FACTORY_V1`, `BET_FACTORY_V2`, `BET_V1_ABI`, `BET_V2_ABI`).
+
+Note: a bet's description is NOT stored in contract state - it only exists in the
+detailed `BetCreated` event emitted by the bet clone at creation.
 
 ### Key Timestamps
 

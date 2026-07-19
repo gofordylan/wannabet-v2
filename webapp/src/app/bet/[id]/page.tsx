@@ -3,6 +3,7 @@
 import { Bell, Globe, HelpCircle, Loader2, User } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { type Bet, BetStatus } from 'shared'
 import { useAccount } from 'wagmi'
 
 import { BetDetailDialog } from '@/components/bet-detail-dialog'
@@ -11,7 +12,6 @@ import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { WelcomeModal } from '@/components/welcome-modal'
 import { useBet } from '@/hooks/useBet'
 import { useBets } from '@/hooks/useBets'
-import { BetStatus, type Bet } from 'indexer/types'
 
 type FilterType = 'all' | 'my' | 'notifications'
 
@@ -19,9 +19,11 @@ type FilterType = 'all' | 'my' | 'notifications'
 function betRequiresAction(bet: Bet, userAddress: string): boolean {
   const addr = userAddress.toLowerCase()
   const needsAccept =
-    bet.taker.address?.toLowerCase() === addr && bet.status === BetStatus.PENDING
+    bet.taker.address?.toLowerCase() === addr &&
+    bet.status === BetStatus.PENDING
   const needsJudgment =
-    bet.judge.address?.toLowerCase() === addr && bet.status === BetStatus.JUDGING
+    bet.judge.address?.toLowerCase() === addr &&
+    bet.status === BetStatus.JUDGING
   return needsAccept || needsJudgment
 }
 
@@ -104,14 +106,18 @@ export default function BetPage() {
       key: 'notifications' as FilterType,
       icon: Bell,
       label: 'Alerts',
-      badge: betsRequiringAction.length > 0 ? betsRequiringAction.length : undefined,
+      badge:
+        betsRequiringAction.length > 0 ? betsRequiringAction.length : undefined,
     },
     { key: 'my' as FilterType, icon: User, label: 'My Bets' },
     { key: 'all' as FilterType, icon: Globe, label: 'All Bets' },
   ]
 
   return (
-    <div className="relative min-h-screen pb-20 sm:pb-4" style={{ background: '#faf5ef' }}>
+    <div
+      className="relative min-h-screen pb-20 sm:pb-4"
+      style={{ background: '#faf5ef' }}
+    >
       {/* Subtle radial gradient overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
@@ -141,7 +147,7 @@ export default function BetPage() {
 
           <div className="flex items-center gap-2">
             {/* Connect Wallet Button */}
-            <div className="hidden md:block">
+            <div>
               <ConnectWalletButton />
             </div>
 
@@ -204,17 +210,17 @@ export default function BetPage() {
       <main className="relative z-10 mx-auto max-w-[680px] px-3 py-4 sm:px-6 md:py-8">
         {betsQuery.isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-wb-taupe" />
+            <Loader2 className="text-wb-taupe h-6 w-6 animate-spin" />
           </div>
         ) : betsQuery.error ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[15px] font-semibold text-wb-taupe">
+            <div className="text-wb-taupe text-[15px] font-semibold">
               Error loading bets
             </div>
           </div>
         ) : filteredBets.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[15px] font-semibold text-wb-taupe">
+            <div className="text-wb-taupe text-[15px] font-semibold">
               {getEmptyStateMessage(activeFilter, !!address)}
             </div>
           </div>
