@@ -82,11 +82,16 @@ type DiscoveredBet = {
 // and reuse it across requests within the same lambda.
 let learnedChunkSize = 100_000n
 const MIN_CHUNK_SIZE = 2_000n
+// Per-request scan budget: the seed normally leaves only a tiny gap, but if it
+// is stale/partial we return what we found in time rather than hanging the
+// route. Later requests (and the next build) pick up where the seed left off.
+const SCAN_BUDGET_MS = 15_000
 
 async function getBetCreatedLogs(fromBlock: bigint, toBlock: bigint) {
+  const deadline = Date.now() + SCAN_BUDGET_MS
   const logs = []
   let from = fromBlock
-  while (from <= toBlock) {
+  while (from <= toBlock && Date.now() < deadline) {
     let size = learnedChunkSize
     for (;;) {
       const to = from + size - 1n > toBlock ? toBlock : from + size - 1n
@@ -106,6 +111,11 @@ async function getBetCreatedLogs(fromBlock: bigint, toBlock: bigint) {
         learnedChunkSize = size
       }
     }
+  }
+  if (from <= toBlock) {
+    console.warn(
+      `Bet scan budget exhausted at block ${from - 1n} of ${toBlock}; serving partial results`
+    )
   }
   return logs
 }
