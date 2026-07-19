@@ -130,6 +130,22 @@ async function getBetCreatedLogs(fromBlock, toBlock, deadline) {
   return { logs, scannedTo: toBlock }
 }
 
+// Some free providers prune old block history ("pruned history unavailable"),
+// so header lookups need the same provider failover as everything else
+async function fetchBlockTimestamp(clientIndex, blockNumber) {
+  for (let attempt = 0; attempt < clients.length; attempt++) {
+    const client = clients[(clientIndex + attempt) % clients.length]
+    try {
+      const block = await client.getBlock({ blockNumber })
+      return Number(block.timestamp)
+    } catch {
+      // Try the next provider
+    }
+  }
+  console.warn(`No provider could serve block ${blockNumber}; timestamp 0`)
+  return 0
+}
+
 async function fetchDescription(clientIndex, txHash, betAddress) {
   for (let attempt = 0; attempt < clients.length; attempt++) {
     const client = clients[(clientIndex + attempt) % clients.length]
@@ -180,9 +196,7 @@ async function main() {
   const blockNumbers = [...new Set(logs.map((log) => log.blockNumber))]
   const timestamps = new Map()
   await mapInBatches(blockNumbers, 10, async (blockNumber, i) => {
-    const client = clients[i % clients.length]
-    const block = await client.getBlock({ blockNumber })
-    timestamps.set(blockNumber, Number(block.timestamp))
+    timestamps.set(blockNumber, await fetchBlockTimestamp(i, blockNumber))
   })
 
   const known = new Map(existing.bets.map((bet) => [bet.address, bet]))
