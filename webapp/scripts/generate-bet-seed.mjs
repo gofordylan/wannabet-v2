@@ -48,7 +48,7 @@ const FACTORY_ADDRESSES = [BET_FACTORY_V1.address, BET_FACTORY_V2.address]
 const CHUNK_SIZE = 10_000n
 const MIN_CHUNK_SIZE = 1_000n
 const CONCURRENCY = 9
-const SCAN_BUDGET_MS = Number(process.env.SEED_SCAN_BUDGET_MS ?? 20 * 60_000)
+const SCAN_BUDGET_MS = Number(process.env.SEED_SCAN_BUDGET_MS ?? 30 * 60_000)
 
 function min(a, b) {
   return a < b ? a : b
