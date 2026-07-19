@@ -2,12 +2,12 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { type Bet, BetStatus } from 'shared'
 
 import { BetDetailDialog } from '@/components/bet-detail-dialog'
 import { StatusPennant } from '@/components/status-pennant'
 import { UserAvatar } from '@/components/user-avatar'
-import { BetStatus, type Bet } from 'indexer/types'
-import { getUsername } from '@/lib/utils'
+import { getDisplayName } from '@/lib/utils'
 
 interface BetsTableProps {
   bets: Bet[]
@@ -22,7 +22,7 @@ export function BetsTable({ bets }: BetsTableProps) {
         {bets.map((bet, index) => (
           <div
             key={bet.address}
-            className="animate-card-mount cursor-pointer rounded-2xl border-0 bg-white p-3.5 shadow-clay transition-all hover:-translate-y-[3px] sm:rounded-3xl sm:p-6"
+            className="animate-card-mount shadow-clay cursor-pointer rounded-2xl border-0 bg-white p-3.5 transition-all hover:-translate-y-[3px] sm:rounded-3xl sm:p-6"
             style={{ animationDelay: `${50 + index * 50}ms` }}
             onClick={() => setSelectedBet(bet)}
           >
@@ -33,55 +33,68 @@ export function BetsTable({ bets }: BetsTableProps) {
                   <div
                     className={`relative rounded-full ring-2 ${
                       bet.status === BetStatus.RESOLVED &&
-                      bet.winner?.address?.toLowerCase() === bet.maker.address?.toLowerCase()
+                      bet.winner?.address?.toLowerCase() ===
+                        bet.maker.address?.toLowerCase()
                         ? 'ring-wb-gold'
                         : 'ring-wb-taupe/30'
                     } ${
                       bet.status === BetStatus.RESOLVED &&
                       bet.winner &&
-                      bet.winner.address?.toLowerCase() !== bet.maker.address?.toLowerCase()
+                      bet.winner.address?.toLowerCase() !==
+                        bet.maker.address?.toLowerCase()
                         ? 'grayscale'
                         : ''
                     }`}
                   >
-                    <UserAvatar user={bet.maker} size="sm" clickable={false} />
+                    <UserAvatar user={bet.maker} size="sm" />
                   </div>
-                  <span className={`text-xs font-bold text-wb-brown sm:text-sm ${
-                    bet.status === BetStatus.RESOLVED &&
-                    bet.winner?.address?.toLowerCase() === bet.maker.address?.toLowerCase()
-                      ? 'underline decoration-wb-gold decoration-2 underline-offset-2'
-                      : ''
-                  }`}>
-                    {getUsername(bet.maker)}
+                  <span
+                    className={`text-wb-brown text-xs font-bold sm:text-sm ${
+                      bet.status === BetStatus.RESOLVED &&
+                      bet.winner?.address?.toLowerCase() ===
+                        bet.maker.address?.toLowerCase()
+                        ? 'decoration-wb-gold underline decoration-2 underline-offset-2'
+                        : ''
+                    }`}
+                  >
+                    {getDisplayName(bet.maker)}
                   </span>
                 </div>
-                <span className="text-[11px] font-bold sm:text-[13px]" style={{ color: '#d4c5a9' }}>
+                <span
+                  className="text-[11px] font-bold sm:text-[13px]"
+                  style={{ color: '#d4c5a9' }}
+                >
                   vs
                 </span>
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <div
                     className={`relative rounded-full ring-2 ${
                       bet.status === BetStatus.RESOLVED &&
-                      bet.winner?.address?.toLowerCase() === bet.taker.address?.toLowerCase()
+                      bet.winner?.address?.toLowerCase() ===
+                        bet.taker.address?.toLowerCase()
                         ? 'ring-wb-gold'
                         : 'ring-wb-taupe/30'
                     } ${
                       bet.status === BetStatus.RESOLVED &&
                       bet.winner &&
-                      bet.winner.address?.toLowerCase() !== bet.taker.address?.toLowerCase()
+                      bet.winner.address?.toLowerCase() !==
+                        bet.taker.address?.toLowerCase()
                         ? 'grayscale'
                         : ''
                     }`}
                   >
-                    <UserAvatar user={bet.taker} size="sm" clickable={false} />
+                    <UserAvatar user={bet.taker} size="sm" />
                   </div>
-                  <span className={`text-xs font-bold text-wb-brown sm:text-sm ${
-                    bet.status === BetStatus.RESOLVED &&
-                    bet.winner?.address?.toLowerCase() === bet.taker.address?.toLowerCase()
-                      ? 'underline decoration-wb-gold decoration-2 underline-offset-2'
-                      : ''
-                  }`}>
-                    {getUsername(bet.taker)}
+                  <span
+                    className={`text-wb-brown text-xs font-bold sm:text-sm ${
+                      bet.status === BetStatus.RESOLVED &&
+                      bet.winner?.address?.toLowerCase() ===
+                        bet.taker.address?.toLowerCase()
+                        ? 'decoration-wb-gold underline decoration-2 underline-offset-2'
+                        : ''
+                    }`}
+                  >
+                    {getDisplayName(bet.taker)}
                   </span>
                 </div>
               </div>
@@ -90,7 +103,7 @@ export function BetsTable({ bets }: BetsTableProps) {
 
             {/* Description */}
             <p
-              className="line-clamp-2 text-[14px] font-bold leading-snug text-wb-brown sm:text-[17px]"
+              className="text-wb-brown line-clamp-2 text-[14px] font-bold leading-snug sm:text-[17px]"
               style={{ letterSpacing: '-0.01em' }}
             >
               {bet.description}
@@ -99,7 +112,7 @@ export function BetsTable({ bets }: BetsTableProps) {
             {/* Amount and date */}
             <div className="mt-2 flex items-center justify-between sm:mt-3">
               <div className="flex items-center gap-1">
-                <span className="text-[16px] font-bold text-wb-coral sm:text-[20px]">
+                <span className="text-wb-coral text-[16px] font-bold sm:text-[20px]">
                   {bet.amount}
                 </span>
                 <Image
@@ -110,7 +123,7 @@ export function BetsTable({ bets }: BetsTableProps) {
                   className="rounded-full sm:h-[18px] sm:w-[18px]"
                 />
               </div>
-              <span className="text-[10px] font-semibold text-wb-taupe sm:text-xs">
+              <span className="text-wb-taupe text-[10px] font-semibold sm:text-xs">
                 Ends{' '}
                 {new Intl.DateTimeFormat('en-US', {
                   month: 'short',

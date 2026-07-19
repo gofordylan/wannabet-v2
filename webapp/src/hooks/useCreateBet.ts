@@ -1,21 +1,21 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
-import { parseUnits, type Address } from 'viem'
+import { type Address, parseUnits } from 'viem'
 import {
   useAccount,
-  useWriteContract,
-  useWaitForTransactionReceipt,
   usePublicClient,
+  useWaitForTransactionReceipt,
+  useWriteContract,
 } from 'wagmi'
-import { useQueryClient } from '@tanstack/react-query'
 
+import { refreshBets } from '@/lib/bets'
 import {
+  BET_FACTORY_ABI,
+  BET_FACTORY_ADDRESS,
+  ERC20_ABI,
   USDC_ADDRESS,
   USDC_DECIMALS,
-  ERC20_ABI,
-  BET_FACTORY_ADDRESS,
-  BET_FACTORY_ABI,
 } from '@/lib/contracts'
-import { tagBetSource } from '@/lib/indexer'
 
 export type CreateBetParams = {
   taker: Address
@@ -177,13 +177,8 @@ export function useCreateBet() {
         }
         setBetAddress(finalBetAddress)
 
-        // Tag this bet as created from the Farcaster mini-app
-        tagBetSource(finalBetAddress, 'fc')
-
-        // Wait for indexer to pick up the new bet before refreshing
-        await new Promise((resolve) => setTimeout(resolve, 5000))
-
-        // Invalidate the bets query to refresh the list
+        // Bust the server-side cache and refresh the list
+        await refreshBets()
         await queryClient.invalidateQueries({ queryKey: ['bets'] })
 
         setPhase('success')

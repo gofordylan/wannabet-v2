@@ -2,7 +2,6 @@ packages:
   - webapp
   - shared
   - contracts
-  - indexer
 
 catalog:
   '@types/node': 22.18.10

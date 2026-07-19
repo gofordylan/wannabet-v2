@@ -1,8 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import type { Address } from 'viem'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { useQueryClient } from '@tanstack/react-query'
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi'
 
+import { refreshBets } from '@/lib/bets'
 import { BET_ABI } from '@/lib/contracts'
 
 type Phase = 'idle' | 'cancelling' | 'success' | 'error'
@@ -50,6 +55,7 @@ export function useCancelBet(betAddress: Address) {
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
       // Invalidate queries to refresh data
+      await refreshBets()
       await queryClient.invalidateQueries({ queryKey: ['bets'] })
       await queryClient.invalidateQueries({ queryKey: ['bet', betAddress] })
 

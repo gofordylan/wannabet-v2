@@ -1,22 +1,16 @@
 'use client'
 
-import Link from 'next/link'
+import type { BetUser } from 'shared'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { FarcasterUser } from 'indexer/types'
-import { getUsername } from '@/lib/utils'
+import { getDisplayName } from '@/lib/utils'
 
 interface UserAvatarProps {
-  user: FarcasterUser
+  user: BetUser
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-  clickable?: boolean
 }
 
-export function UserAvatar({
-  user,
-  size = 'md',
-  clickable = true,
-}: UserAvatarProps) {
+export function UserAvatar({ user, size = 'md' }: UserAvatarProps) {
   const sizeClasses = {
     sm: 'h-8 w-8',
     md: 'h-10 w-10',
@@ -26,35 +20,26 @@ export function UserAvatar({
   }
 
   const getFallbackInitials = () => {
-    const name = user.displayName || getUsername(user)
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .filter(Boolean)
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
-
-  const avatar = (
-    <Avatar className={sizeClasses[size]}>
-      <AvatarImage src={user.pfpUrl ?? undefined} alt={user.displayName || user.username || undefined} />
-      <AvatarFallback>{getFallbackInitials()}</AvatarFallback>
-    </Avatar>
-  )
-
-  // Don't make clickable if user doesn't have a Farcaster account
-  if (!clickable || !user.fid) {
-    return avatar
+    if (user.name) {
+      return user.name
+        .split(' ')
+        .map((n) => n[0])
+        .filter(Boolean)
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    }
+    // 0xAB... -> "AB"
+    return user.address.slice(2, 4).toUpperCase()
   }
 
   return (
-    <Link
-      href={`/profile/${user.fid}`}
-      className="inline-block transition-opacity hover:opacity-80"
-      title={`@${getUsername(user)}`}
-    >
-      {avatar}
-    </Link>
+    <Avatar className={sizeClasses[size]}>
+      <AvatarImage
+        src={user.avatarUrl ?? undefined}
+        alt={getDisplayName(user)}
+      />
+      <AvatarFallback>{getFallbackInitials()}</AvatarFallback>
+    </Avatar>
   )
 }

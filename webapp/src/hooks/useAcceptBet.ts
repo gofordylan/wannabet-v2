@@ -1,18 +1,19 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
-import { parseUnits, type Address } from 'viem'
+import { type Address, parseUnits } from 'viem'
 import {
   useAccount,
   useReadContract,
-  useWriteContract,
   useWaitForTransactionReceipt,
+  useWriteContract,
 } from 'wagmi'
-import { useQueryClient } from '@tanstack/react-query'
 
+import { refreshBets } from '@/lib/bets'
 import {
+  BET_ABI,
+  ERC20_ABI,
   USDC_ADDRESS,
   USDC_DECIMALS,
-  ERC20_ABI,
-  BET_ABI,
 } from '@/lib/contracts'
 
 type Phase = 'idle' | 'approving' | 'accepting' | 'success' | 'error'
@@ -113,6 +114,7 @@ export function useAcceptBet(betAddress: Address, takerStake: string) {
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
       // Invalidate queries to refresh data
+      await refreshBets()
       await queryClient.invalidateQueries({ queryKey: ['bets'] })
       await queryClient.invalidateQueries({ queryKey: ['bet', betAddress] })
 

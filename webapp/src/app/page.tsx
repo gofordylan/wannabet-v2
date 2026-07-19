@@ -9,13 +9,13 @@ import {
   User,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type Bet, BetStatus } from 'shared'
 import { useAccount } from 'wagmi'
 
 import { BetsTable } from '@/components/bets-table'
 import { ConnectWalletButton } from '@/components/connect-wallet-button'
 import { WelcomeModal } from '@/components/welcome-modal'
 import { useBets } from '@/hooks/useBets'
-import { BetStatus, type Bet } from 'indexer/types'
 
 type FilterType = 'all' | 'my' | 'notifications'
 
@@ -23,9 +23,11 @@ type FilterType = 'all' | 'my' | 'notifications'
 function betRequiresAction(bet: Bet, userAddress: string): boolean {
   const addr = userAddress.toLowerCase()
   const needsAccept =
-    bet.taker.address?.toLowerCase() === addr && bet.status === BetStatus.PENDING
+    bet.taker.address?.toLowerCase() === addr &&
+    bet.status === BetStatus.PENDING
   const needsJudgment =
-    bet.judge.address?.toLowerCase() === addr && bet.status === BetStatus.JUDGING
+    bet.judge.address?.toLowerCase() === addr &&
+    bet.status === BetStatus.JUDGING
   return needsAccept || needsJudgment
 }
 
@@ -150,7 +152,14 @@ export default function HomePage() {
     })
 
     return bets
-  }, [betsQuery.data, activeFilter, address, activeStatuses, betsRequiringAction, sortBy])
+  }, [
+    betsQuery.data,
+    activeFilter,
+    address,
+    activeStatuses,
+    betsRequiringAction,
+    sortBy,
+  ])
 
   // Reset visible count when filters change
   useEffect(() => {
@@ -209,14 +218,18 @@ export default function HomePage() {
       key: 'notifications' as FilterType,
       icon: Bell,
       label: 'Alerts',
-      badge: betsRequiringAction.length > 0 ? betsRequiringAction.length : undefined,
+      badge:
+        betsRequiringAction.length > 0 ? betsRequiringAction.length : undefined,
     },
     { key: 'my' as FilterType, icon: User, label: 'My Bets' },
     { key: 'all' as FilterType, icon: Globe, label: 'All Bets' },
   ]
 
   return (
-    <div className="relative min-h-screen pb-20 sm:pb-4" style={{ background: '#faf5ef' }}>
+    <div
+      className="relative min-h-screen pb-20 sm:pb-4"
+      style={{ background: '#faf5ef' }}
+    >
       {/* Subtle radial gradient overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
@@ -246,7 +259,7 @@ export default function HomePage() {
 
           <div className="flex items-center gap-2">
             {/* Connect Wallet Button */}
-            <div className="hidden md:block">
+            <div>
               <ConnectWalletButton />
             </div>
 
@@ -318,9 +331,7 @@ export default function HomePage() {
                   onClick={() => toggleStatus(f.value)}
                   className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition-all sm:px-3.5 sm:py-1.5 sm:text-xs"
                   style={{
-                    background: active
-                      ? '#c4654a'
-                      : 'rgba(139,125,107,0.08)',
+                    background: active ? '#c4654a' : 'rgba(139,125,107,0.08)',
                     color: active ? 'white' : '#8b7d6b',
                   }}
                 >
@@ -334,7 +345,10 @@ export default function HomePage() {
               onClick={() => setSortOpen((v) => !v)}
               className="flex items-center justify-center rounded-full p-1.5 transition-all sm:p-2"
               style={{
-                background: sortBy !== 'created' ? 'rgba(196,101,74,0.12)' : 'rgba(139,125,107,0.08)',
+                background:
+                  sortBy !== 'created'
+                    ? 'rgba(196,101,74,0.12)'
+                    : 'rgba(139,125,107,0.08)',
                 color: sortBy !== 'created' ? '#c4654a' : '#8b7d6b',
               }}
               aria-label="Sort"
@@ -384,17 +398,17 @@ export default function HomePage() {
       <main className="relative z-10 mx-auto max-w-[680px] px-3 sm:px-6">
         {betsQuery.isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-wb-taupe" />
+            <Loader2 className="text-wb-taupe h-6 w-6 animate-spin" />
           </div>
         ) : betsQuery.error ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[15px] font-semibold text-wb-taupe">
+            <div className="text-wb-taupe text-[15px] font-semibold">
               Error loading bets
             </div>
           </div>
         ) : filteredBets.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[15px] font-semibold text-wb-taupe">
+            <div className="text-wb-taupe text-[15px] font-semibold">
               {getEmptyStateMessage(activeFilter, !!address, activeStatuses)}
             </div>
           </div>
@@ -406,7 +420,7 @@ export default function HomePage() {
                 ref={sentinelRef}
                 className="flex items-center justify-center py-4"
               >
-                <Loader2 className="h-5 w-5 animate-spin text-wb-taupe" />
+                <Loader2 className="text-wb-taupe h-5 w-5 animate-spin" />
               </div>
             )}
           </>

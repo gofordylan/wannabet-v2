@@ -1,7 +1,5 @@
 'use client'
 
-import { sdk } from '@farcaster/miniapp-sdk'
-import type { FarcasterUser } from 'indexer/types'
 import { Loader2, Plus, Share2 } from 'lucide-react'
 import Image from 'next/image'
 import {
@@ -14,6 +12,7 @@ import {
 import type { Address } from 'viem'
 import { useAccount } from 'wagmi'
 
+import { AddressInput } from '@/components/address-input'
 import { DatePicker } from '@/components/date-picker'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,18 +26,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { UsdcBalance } from '@/components/usdc-balance'
-import { UserSearch } from '@/components/user-search'
-import { useMiniApp } from '@/components/sdk-provider'
 import { useCreateBet } from '@/hooks/useCreateBet'
-import { useNotifications } from '@/hooks/useNotifications'
+import { shortenAddress } from '@/lib/utils'
 
 type SubmitPhase = 'idle' | 'approving' | 'creating' | 'done' | 'error'
 
 interface FormData {
   taker: string
-  takerUser?: FarcasterUser
+  takerAddress?: Address
   judge: string
-  judgeUser?: FarcasterUser
+  judgeAddress?: Address
   amount: string
   expiresAt: string
   description: string
@@ -59,8 +56,7 @@ export function CreateBetDialog() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle')
 
-  const { address, isConnected } = useAccount()
-  const { isMiniApp } = useMiniApp()
+  const { isConnected } = useAccount()
   const {
     submit: submitCreateBet,
     reset: resetCreateBet,
@@ -68,29 +64,17 @@ export function CreateBetDialog() {
     error: createError,
     betAddress,
   } = useCreateBet()
-  const { notifyBetCreated } = useNotifications()
 
-  // Sync hook phase with local phase and send notification on success
+  // Sync hook phase with local phase
   useEffect(() => {
     if (createPhase === 'approving') setPhase('approving')
     else if (createPhase === 'creating') setPhase('creating')
-    else if (createPhase === 'success') {
-      setPhase('done')
-      // Send notification to taker
-      if (betAddress && formData.takerUser?.fid) {
-        notifyBetCreated({
-          address: betAddress,
-          description: formData.description,
-          amount: formData.amount,
-          maker: { fid: null, username: 'Someone' }, // We don't have maker's username here
-          taker: { fid: formData.takerUser.fid },
-        })
-      }
-    } else if (createPhase === 'error') {
+    else if (createPhase === 'success') setPhase('done')
+    else if (createPhase === 'error') {
       setPhase('error')
       setErrorMessage(createError)
     }
-  }, [createPhase, createError, betAddress, formData, notifyBetCreated])
+  }, [createPhase, createError])
 
   // Open dialog via #create hash
   useEffect(() => {
@@ -111,11 +95,11 @@ export function CreateBetDialog() {
 
   // Form validation
   const isFormValid = useMemo(() => {
-    const hasOpponent = formData.takerUser?.address
+    const hasOpponent = !!formData.takerAddress
     const hasDescription = formData.description.trim().length > 5
     const hasValidDate = formData.expiresAt.length > 0
     const hasValidAmount = Number(formData.amount) > 0
-    const hasJudge = formData.judgeUser?.address
+    const hasJudge = !!formData.judgeAddress
 
     return (
       hasOpponent &&
@@ -138,22 +122,11 @@ export function CreateBetDialog() {
     resetCreateBet()
   }, [resetCreateBet])
 
-  // Share bet functionality
+  // Copy a link to the new bet
   const handleShare = useCallback(async () => {
     if (!betAddress) return
-    const betUrl = `https://farcaster.xyz/miniapps/DcAH-ONddWoH/wannabet/bet/${betAddress}`
+    const betUrl = `https://heywannabet.com/bet/${betAddress}`
 
-    if (isMiniApp) {
-      const takerTag = formData.takerUser?.username ? `@${formData.takerUser.username}` : 'someone'
-      const judgeTag = formData.judgeUser?.username ? `@${formData.judgeUser.username}` : 'a judge'
-      sdk.actions.composeCast({
-        text: `I just created a bet on WannaBet!\n\n"${formData.description}"\n\n${formData.amount} USDC each\n\n${takerTag} vs me, judged by ${judgeTag}`,
-        embeds: [betUrl],
-      })
-      return
-    }
-
-    // Fallback: copy to clipboard
     try {
       await navigator.clipboard.writeText(betUrl)
       setShareStatus('copied')
@@ -161,7 +134,7 @@ export function CreateBetDialog() {
     } catch (err) {
       console.error('Failed to copy:', err)
     }
-  }, [betAddress, isMiniApp, formData.description, formData.amount, formData.takerUser?.username, formData.judgeUser?.username])
+  }, [betAddress])
 
   // Update form field
   const updateField = useCallback(
@@ -173,8 +146,10 @@ export function CreateBetDialog() {
 
   // Submit bet creation
   const handleSubmit = useCallback(async () => {
-    if (!formData.takerUser?.address || !formData.judgeUser?.address) {
-      setErrorMessage('Please select valid users for opponent and judge')
+    if (!formData.takerAddress || !formData.judgeAddress) {
+      setErrorMessage(
+        'Please enter valid addresses or ENS names for opponent and judge'
+      )
       setPhase('error')
       return
     }
@@ -202,8 +177,8 @@ export function CreateBetDialog() {
     )
 
     await submitCreateBet({
-      taker: formData.takerUser.address as Address,
-      judge: formData.judgeUser.address as Address,
+      taker: formData.takerAddress,
+      judge: formData.judgeAddress,
       makerStake: formData.amount,
       takerStake: formData.amount, // Same stake for both sides
       acceptBy,
@@ -246,7 +221,10 @@ export function CreateBetDialog() {
               </p>
               <p className="text-wb-taupe text-sm">
                 Your bet has been created on Base. Waiting for{' '}
-                {formData.takerUser?.username || 'opponent'} to accept.
+                {formData.takerAddress
+                  ? shortenAddress(formData.takerAddress)
+                  : 'your opponent'}{' '}
+                to accept.
               </p>
               <div className="flex flex-col gap-2 pt-4">
                 <Button
@@ -255,7 +233,7 @@ export function CreateBetDialog() {
                   onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
-                  {isMiniApp ? 'Share on Farcaster' : shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
+                  {shareStatus === 'copied' ? 'Copied!' : 'Share Bet'}
                 </Button>
                 <Button
                   variant="outline"
@@ -299,13 +277,13 @@ export function CreateBetDialog() {
           {phase !== 'done' && phase !== 'error' && (
             <div className="space-y-2">
               {/* Opponent */}
-              <UserSearch
+              <AddressInput
                 label="Who I'm betting"
                 value={formData.taker}
                 required
-                onChange={(value, user) => {
+                onChange={(value, resolvedAddress) => {
                   updateField('taker', value)
-                  updateField('takerUser', user)
+                  updateField('takerAddress', resolvedAddress)
                 }}
                 labelClassName="text-wb-brown text-sm"
                 inputClassName="bg-wb-sand text-wb-brown placeholder:text-wb-taupe"
@@ -372,14 +350,13 @@ export function CreateBetDialog() {
               </div>
 
               {/* Judge */}
-              <UserSearch
+              <AddressInput
                 label="Who will judge"
-                placeholder="agentjudge"
                 value={formData.judge}
                 required
-                onChange={(value, user) => {
+                onChange={(value, resolvedAddress) => {
                   updateField('judge', value)
-                  updateField('judgeUser', user)
+                  updateField('judgeAddress', resolvedAddress)
                 }}
                 labelClassName="text-wb-brown text-sm"
                 inputClassName="bg-wb-sand text-wb-brown placeholder:text-wb-taupe"

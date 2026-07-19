@@ -1,4 +1,4 @@
-import { BetStatus } from 'indexer/types'
+import { BetStatus } from 'shared'
 
 export const STATUS_CONFIG: Record<
   BetStatus,
@@ -43,9 +43,7 @@ interface StatusPennantProps {
 export function StatusPennant({ status, size = 'md' }: StatusPennantProps) {
   const config = STATUS_CONFIG[status]
   const sizeClasses =
-    size === 'sm'
-      ? 'px-2.5 py-0.5 text-[10px]'
-      : 'px-3 py-1 text-[11px]'
+    size === 'sm' ? 'px-2.5 py-0.5 text-[10px]' : 'px-3 py-1 text-[11px]'
 
   return (
     <div
