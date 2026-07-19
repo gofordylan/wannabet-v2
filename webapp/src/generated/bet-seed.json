@@ -1,5 +1,860 @@
 {
-  "scannedToBlock": 37339201,
-  "generatedAt": null,
-  "bets": []
+  "scannedToBlock": 48839036,
+  "generatedAt": "2026-07-19T13:50:09.103Z",
+  "bets": [
+    {
+      "address": "0x3bdd45975d86c7654a51f28abf899ddcd0b7adc5",
+      "version": 1,
+      "blockNumber": 37339491,
+      "createdAt": 1761468329,
+      "description": "Wannabet works by the ethglobal deadline"
+    },
+    {
+      "address": "0xe7f91735478e430befdedd17717889eb85f88f31",
+      "version": 1,
+      "blockNumber": 37339497,
+      "createdAt": 1761468341,
+      "description": "Wannabet works by the ethglobal deadline"
+    },
+    {
+      "address": "0x070316ff8e866b3495ed775bc1226a4305b2969e",
+      "version": 1,
+      "blockNumber": 37345328,
+      "createdAt": 1761480003,
+      "description": "I will build a website for Primary Names Task Force"
+    },
+    {
+      "address": "0x622ab29fdb8be1c6edd1f1024c647631842e70e1",
+      "version": 1,
+      "blockNumber": 37347855,
+      "createdAt": 1761485057,
+      "description": "I will run 30 miles next week"
+    },
+    {
+      "address": "0x8a223e1a2fa4cc92cd5bd9db9443a400897f078a",
+      "version": 1,
+      "blockNumber": 37401886,
+      "createdAt": 1761593119,
+      "description": "That warplets will be worth more than today (10/27)"
+    },
+    {
+      "address": "0x4d31f1da89faaf5b6cdc362d854f51e6b339c384",
+      "version": 1,
+      "blockNumber": 37401892,
+      "createdAt": 1761593131,
+      "description": "That warplets will be worth more than today (10/27)"
+    },
+    {
+      "address": "0xc205a797a01aa81726339e5cf97e1a04eb80cc8d",
+      "version": 1,
+      "blockNumber": 37515408,
+      "createdAt": 1761820163,
+      "description": "Ether will not be $5k before the end of November"
+    },
+    {
+      "address": "0x63d349f1b4155bc753b87133b2fce689b8081f25",
+      "version": 1,
+      "blockNumber": 37528614,
+      "createdAt": 1761846575,
+      "description": "Our demo will go without any bugs"
+    },
+    {
+      "address": "0xebf1817ae118fa1a88b6bffafc0e66377ed057a0",
+      "version": 1,
+      "blockNumber": 37529281,
+      "createdAt": 1761847909,
+      "description": "Limes will accept this bet"
+    },
+    {
+      "address": "0xc281c427626e51bf1ae882de9156d0a595e7f756",
+      "version": 1,
+      "blockNumber": 37529502,
+      "createdAt": 1761848351,
+      "description": "There will be no bugs in this demo"
+    },
+    {
+      "address": "0xb805adcf9780aa5d18f0f325bacef1f77fcefadc",
+      "version": 1,
+      "blockNumber": 37529813,
+      "createdAt": 1761848973,
+      "description": "There will be no bugs in this demo"
+    },
+    {
+      "address": "0x43c190557f1feb82642683cbe21bf0ff32e87062",
+      "version": 1,
+      "blockNumber": 37530278,
+      "createdAt": 1761849903,
+      "description": "There will be no bugs in this demo"
+    },
+    {
+      "address": "0x3d9274ae086a0c5e7286cb2d4d5c0372286895b4",
+      "version": 1,
+      "blockNumber": 37539987,
+      "createdAt": 1761869321,
+      "description": "GTA 6 will come out after May 31, 2026"
+    },
+    {
+      "address": "0xd0646ffb9afcd163a9a72f9b43b44e95d291cb9d",
+      "version": 1,
+      "blockNumber": 37567266,
+      "createdAt": 1761923879,
+      "description": "I will distribute 100+ ENS POAPs at Devconnect"
+    },
+    {
+      "address": "0xe46f478b60f6e3e8aea91d4283ab7c402042e2b4",
+      "version": 1,
+      "blockNumber": 37567538,
+      "createdAt": 1761924423,
+      "description": "I will write 4 blog posts in November 2025"
+    },
+    {
+      "address": "0x1069d74f825c42fdb5ca296ccdeb311c56b7fac8",
+      "version": 1,
+      "blockNumber": 37569282,
+      "createdAt": 1761927911,
+      "description": "There will be no bugs in this demo"
+    },
+    {
+      "address": "0x06f7498d74702edd4eac5289a0a0b04a54f68742",
+      "version": 1,
+      "blockNumber": 37576683,
+      "createdAt": 1761942713,
+      "description": "Dylan will not go under 1:14 for Chicago hyrox"
+    },
+    {
+      "address": "0x359b02e79ade51bd7412bb25a817133ccf251ced",
+      "version": 1,
+      "blockNumber": 37712375,
+      "createdAt": 1762214097,
+      "description": "It will take Dawson longer than 6:20 to finish his half Ironman"
+    },
+    {
+      "address": "0x3262a2697496c205e21bb6275ae9bec572129ce7",
+      "version": 1,
+      "blockNumber": 37745822,
+      "createdAt": 1762280991,
+      "description": "GTA 6 comes out after June 1, 2026"
+    },
+    {
+      "address": "0x142227d1544183830371b846d7e629008412974f",
+      "version": 1,
+      "blockNumber": 37745882,
+      "createdAt": 1762281111,
+      "description": "GTA 6 comes out after June 1, 2026"
+    },
+    {
+      "address": "0x1dfb3185409e9a3ddfd338aff96c2af8f17e8846",
+      "version": 1,
+      "blockNumber": 37745891,
+      "createdAt": 1762281129,
+      "description": "GTA 6 comes out after June 1, 2026"
+    },
+    {
+      "address": "0x816ad8168995314e74786ade2fe222e69e1d8eef",
+      "version": 1,
+      "blockNumber": 37746001,
+      "createdAt": 1762281349,
+      "description": "This bet will not succeed"
+    },
+    {
+      "address": "0xe59f3796367b3e70f4d7c85711cc6b7bd60c9d4e",
+      "version": 1,
+      "blockNumber": 37792635,
+      "createdAt": 1762374617,
+      "description": "The REGENT token will have greater than 1000 unique holders 6 days after launch. "
+    },
+    {
+      "address": "0x2c2716acb4c2ac2157a80165b0a0407679ee0e73",
+      "version": 1,
+      "blockNumber": 38003763,
+      "createdAt": 1762796873,
+      "description": "slobo thinks the world will by more just by will december 1?"
+    },
+    {
+      "address": "0x47803806b5f98f5d619e72f8b75d3b0dd94d8851",
+      "version": 1,
+      "blockNumber": 38050931,
+      "createdAt": 1762891209,
+      "description": "cam will touch his hair"
+    },
+    {
+      "address": "0x6f9f2b3cd90072691ff430404593a919c65eef42",
+      "version": 1,
+      "blockNumber": 38399283,
+      "createdAt": 1763587913,
+      "description": "You won’t name 1 contract this month"
+    },
+    {
+      "address": "0x0a56762a078eac19a024513422c42047c1021487",
+      "version": 1,
+      "blockNumber": 38399752,
+      "createdAt": 1763588851,
+      "description": "You will not get 1M views on an insta video"
+    },
+    {
+      "address": "0xa94028c74e2dd4d2269763487bc8f7833e5b8811",
+      "version": 1,
+      "blockNumber": 38427604,
+      "createdAt": 1763644555,
+      "description": "Racing club will beat river plate"
+    },
+    {
+      "address": "0x4d9cbb6911c784321003f78c552266401cc9dbed",
+      "version": 1,
+      "blockNumber": 38427610,
+      "createdAt": 1763644567,
+      "description": "Racing club will beat river plate"
+    },
+    {
+      "address": "0x550b22028b496e2ef3178267c6bf3d9dbbf6b7ec",
+      "version": 1,
+      "blockNumber": 38427904,
+      "createdAt": 1763645155,
+      "description": "I will get a job in crypto."
+    },
+    {
+      "address": "0x8ff2d54668b794d11a4edbad8b00970e2999bcda",
+      "version": 1,
+      "blockNumber": 38433791,
+      "createdAt": 1763656929,
+      "description": "$jesse fdv more than $10M 24h after launch"
+    },
+    {
+      "address": "0x441b89bc0a6fbaf29dd21f9ce64bd770dbfa7fed",
+      "version": 1,
+      "blockNumber": 38434067,
+      "createdAt": 1763657481,
+      "description": "It will be raining at the start of the farcaster meetup at 6pm 🌧️ "
+    },
+    {
+      "address": "0x9d888c52c6c09d2d744664525ad661f5e3bbde4d",
+      "version": 1,
+      "blockNumber": 38474284,
+      "createdAt": 1763737915,
+      "description": "horsefacts beats limes at miniword"
+    },
+    {
+      "address": "0x2436d1101122312ff037eefcc12e7f344c437a98",
+      "version": 1,
+      "blockNumber": 38514677,
+      "createdAt": 1763818701,
+      "description": "This will work"
+    },
+    {
+      "address": "0x6864c6e75661bd1c9f25c0636df49ee104c6ef1d",
+      "version": 1,
+      "blockNumber": 38652967,
+      "createdAt": 1764095281,
+      "description": "ETH above 3200"
+    },
+    {
+      "address": "0xbea042d57b436b1e329b90a607ebadc169a348f2",
+      "version": 1,
+      "blockNumber": 38727218,
+      "createdAt": 1764243783,
+      "description": "You won't accept"
+    },
+    {
+      "address": "0xf85387c10f16943e34bd7d11a0327389124906ef",
+      "version": 1,
+      "blockNumber": 38727370,
+      "createdAt": 1764244087,
+      "description": "BetFactory log will be found"
+    },
+    {
+      "address": "0xa612c8e1b08d35b8bad895fa0967239cd4231386",
+      "version": 1,
+      "blockNumber": 38727976,
+      "createdAt": 1764245299,
+      "description": "You will not have a farcaster wallet"
+    },
+    {
+      "address": "0xc4593f3b13d035f1ca1e9af9eae5c30e297def44",
+      "version": 1,
+      "blockNumber": 38728122,
+      "createdAt": 1764245591,
+      "description": "No error message"
+    },
+    {
+      "address": "0x6da5666db448dd012a4a8557cd904d730a0f4be7",
+      "version": 1,
+      "blockNumber": 38728208,
+      "createdAt": 1764245763,
+      "description": "GTA released by 2027"
+    },
+    {
+      "address": "0xeaef11c983679c86efa971740407c87fb9e8075b",
+      "version": 1,
+      "blockNumber": 38964241,
+      "createdAt": 1764717829,
+      "description": "Carolina beats Kentucky tonight "
+    },
+    {
+      "address": "0x75d839a17622a6064a9ea079a619f524fc7c1605",
+      "version": 1,
+      "blockNumber": 39600947,
+      "createdAt": 1765991241,
+      "description": "$BET will launch by 12/31"
+    },
+    {
+      "address": "0x95e1b08f55d83f3bfc22cdb6005ddafc38fa7c3d",
+      "version": 2,
+      "blockNumber": 40513072,
+      "createdAt": 1767815491,
+      "description": "20+ people at 0 to 1 day"
+    },
+    {
+      "address": "0xa2523363812f8c922f7e70d4a33b92116610ee1e",
+      "version": 2,
+      "blockNumber": 40549631,
+      "createdAt": 1767888609,
+      "description": "I will use more claude code tokens than you 1/9-1/16"
+    },
+    {
+      "address": "0x7aa4511e371327bb8930d355ff4a077987982494",
+      "version": 2,
+      "blockNumber": 40550526,
+      "createdAt": 1767890399,
+      "description": "I will use more claude tokens than you today"
+    },
+    {
+      "address": "0xbb46537b8fae67f7d6f0b9a1b67f88cbf3575ccd",
+      "version": 2,
+      "blockNumber": 40550720,
+      "createdAt": 1767890787,
+      "description": "I will use more claude tokens than you tomorrow"
+    },
+    {
+      "address": "0x1d99b1a8c2bf0b43e6efac47caca9cc6c33f9810",
+      "version": 2,
+      "blockNumber": 40550850,
+      "createdAt": 1767891047,
+      "description": "I will use more claude tokens than you on 1/10"
+    },
+    {
+      "address": "0x89e9360f914bab19ee95c218e30263c9560a7d66",
+      "version": 2,
+      "blockNumber": 40557173,
+      "createdAt": 1767903693,
+      "description": "dylan can't write 10,000 lines of code this month"
+    },
+    {
+      "address": "0x1d0d0f3aab158bf2649e21a2678be279c7fae535",
+      "version": 2,
+      "blockNumber": 40558292,
+      "createdAt": 1767905931,
+      "description": "I use more claude tokens today"
+    },
+    {
+      "address": "0xb9385429032e7865b9f34d012d4c227682d1d16f",
+      "version": 2,
+      "blockNumber": 40561789,
+      "createdAt": 1767912925,
+      "description": "You won't do under 1:14 Miami Hyrox Pro"
+    },
+    {
+      "address": "0x765d054a83df1fea872e8f323935b335f77a0320",
+      "version": 2,
+      "blockNumber": 40767805,
+      "createdAt": 1768324957,
+      "description": "you won’t make a new bet on this app before feb 1"
+    },
+    {
+      "address": "0xbaa9c16f28a938f58c99fdb3ae27efc58f4cfd91",
+      "version": 2,
+      "blockNumber": 40802057,
+      "createdAt": 1768393461,
+      "description": "You won’t quit your job before Feb 1"
+    },
+    {
+      "address": "0xde3ef637eeeeffd497ba517ee32830099bd87db4",
+      "version": 2,
+      "blockNumber": 40820268,
+      "createdAt": 1768429883,
+      "description": "You won’t host another Shiphaus"
+    },
+    {
+      "address": "0x7111c65881f4cda1d5a4ff9d49487bd942574ecb",
+      "version": 2,
+      "blockNumber": 40847002,
+      "createdAt": 1768483351,
+      "description": "Knicks will win the championship"
+    },
+    {
+      "address": "0xfa4187e89810c4904962315a799e44bc9c0ef48b",
+      "version": 2,
+      "blockNumber": 40847257,
+      "createdAt": 1768483861,
+      "description": "I'll launch today"
+    },
+    {
+      "address": "0x04e478937eae6d36ea6b984911ef10d2f9482e2c",
+      "version": 2,
+      "blockNumber": 40849699,
+      "createdAt": 1768488745,
+      "description": "The Rockets win the NBA championship"
+    },
+    {
+      "address": "0x1e4d9cb206eee5bcfe66da318dde3a71366c7676",
+      "version": 2,
+      "blockNumber": 40849880,
+      "createdAt": 1768489107,
+      "description": "20 bets on day 1"
+    },
+    {
+      "address": "0x794446a2b6f87d8b524dfe9c6beee14bb8230315",
+      "version": 2,
+      "blockNumber": 40849953,
+      "createdAt": 1768489253,
+      "description": "GTA 6 doesn’t come out this year"
+    },
+    {
+      "address": "0x3198942a25c235dd22d107941ae8eb245637d6f0",
+      "version": 2,
+      "blockNumber": 40850096,
+      "createdAt": 1768489539,
+      "description": "It’ll rain tomorrow"
+    },
+    {
+      "address": "0xa4fc89947b2958d1a4218a360e148b5c53c53e60",
+      "version": 2,
+      "blockNumber": 40850387,
+      "createdAt": 1768490121,
+      "description": "JD Vance takes over as president in 2026"
+    },
+    {
+      "address": "0x9222ff0a58e36f66e4d967c0cc8b3e45b440c548",
+      "version": 2,
+      "blockNumber": 40850679,
+      "createdAt": 1768490705,
+      "description": "I'll run a 6 min mile"
+    },
+    {
+      "address": "0x8a9f55939578b9012ad2e910f22ea8cbc1191271",
+      "version": 2,
+      "blockNumber": 40850789,
+      "createdAt": 1768490925,
+      "description": "You won't post 3 blogs this month"
+    },
+    {
+      "address": "0x12d104e1b690af118539253a9c0aaaf6222bdbd8",
+      "version": 2,
+      "blockNumber": 40851479,
+      "createdAt": 1768492305,
+      "description": "I'll beat you in poker"
+    },
+    {
+      "address": "0x58f3f46f7f94aac9e61306d04b9e1fc310b7fc07",
+      "version": 2,
+      "blockNumber": 40854848,
+      "createdAt": 1768499043,
+      "description": "I can do more pull ups than you"
+    },
+    {
+      "address": "0x2b6cd74c74b540d158369bd9cd909348bf310595",
+      "version": 2,
+      "blockNumber": 40855193,
+      "createdAt": 1768499733,
+      "description": "chaskin won't go a single day without using claude code this month"
+    },
+    {
+      "address": "0xc0f5af9bca4427a2595827abc8e729977ed315fd",
+      "version": 2,
+      "blockNumber": 40859696,
+      "createdAt": 1768508739,
+      "description": "Merkle does not announce any m&a activity in the next 7 days "
+    },
+    {
+      "address": "0xcce0cb87966e277f438e8583d158854aefc8088f",
+      "version": 2,
+      "blockNumber": 40898808,
+      "createdAt": 1768586963,
+      "description": "You don’t get a notification"
+    },
+    {
+      "address": "0x103984919ccdeac263a57f574157d01b85ef3aef",
+      "version": 2,
+      "blockNumber": 40905788,
+      "createdAt": 1768600923,
+      "description": "You can’t make it to TJ and back in 16 minutes "
+    },
+    {
+      "address": "0x9a7d6f0e1b60ec5c8e9ce9ab1af3280945b63c88",
+      "version": 2,
+      "blockNumber": 40942613,
+      "createdAt": 1768674573,
+      "description": "Tyler will finish Hyrox Miami solo in a faster than Noah. "
+    },
+    {
+      "address": "0x0ebb43ab8ea541336ca3e2d47b364d5b3133eafc",
+      "version": 2,
+      "blockNumber": 40942666,
+      "createdAt": 1768674679,
+      "description": "I will finish Hyrox Miami pro solo in a faster time than Noah. "
+    },
+    {
+      "address": "0xfca0e1f465bcb686c5be93092b555fca3155f71b",
+      "version": 2,
+      "blockNumber": 41019007,
+      "createdAt": 1768827361,
+      "description": "That I will run the nyc half marathon less than 1 hour and 30 minutes "
+    },
+    {
+      "address": "0x9eb6c673d98e18c8eb329fc9ef093d1212f888e9",
+      "version": 2,
+      "blockNumber": 41289512,
+      "createdAt": 1769368371,
+      "description": "Dylan’s prediction of Rams over Seahawks and Broncos over Patriots will not be true. "
+    },
+    {
+      "address": "0x2ab4786b6bef34b4c20e03df1e71d96bf6a37991",
+      "version": 2,
+      "blockNumber": 41289926,
+      "createdAt": 1769369199,
+      "description": "Rams > Seahawks, Broncos > Patriots. 0/2 Charlie, 1/2 split, 2/2 Dylan"
+    },
+    {
+      "address": "0x205445b8071bf7bdbce2d54815fe00f96715f706",
+      "version": 2,
+      "blockNumber": 41290214,
+      "createdAt": 1769369775,
+      "description": "Rams def Seahawks in NFC Championship"
+    },
+    {
+      "address": "0x21611091f5da56a3f8a08519836f8855617989fb",
+      "version": 2,
+      "blockNumber": 41291867,
+      "createdAt": 1769373081,
+      "description": "the rams will win the NFC championship on Jan 25, 2026"
+    },
+    {
+      "address": "0x6efd043000c44d182b5f44346fd9576e817c3c04",
+      "version": 2,
+      "blockNumber": 41335914,
+      "createdAt": 1769461175,
+      "description": "you won’t be the tallest person at network school. "
+    },
+    {
+      "address": "0x3d134ae8d5a707ce65685ae6e6a6a97226a009be",
+      "version": 2,
+      "blockNumber": 41569345,
+      "createdAt": 1769928037,
+      "description": "He will be bored of ns food in 3weeks "
+    },
+    {
+      "address": "0x770f6f2072ab2062a4848965acc5b32ed01c9d5b",
+      "version": 2,
+      "blockNumber": 41615371,
+      "createdAt": 1770020089,
+      "description": "Dylan is going to win ai agent hackathon at fbi"
+    },
+    {
+      "address": "0x34b0741a900f48b4a691009ace154212f2148586",
+      "version": 2,
+      "blockNumber": 41616027,
+      "createdAt": 1770021401,
+      "description": "saumya will sell his mac mini after the hype"
+    },
+    {
+      "address": "0x06eb8e71ac235bf06de148f5c5435fb697f97553",
+      "version": 2,
+      "blockNumber": 41693401,
+      "createdAt": 1770176149,
+      "description": "It’ll rain in NYC today"
+    },
+    {
+      "address": "0xd997543cd3552d62d038c3568d9045f1de56fd3e",
+      "version": 2,
+      "blockNumber": 41788964,
+      "createdAt": 1770367275,
+      "description": "The sky is green"
+    },
+    {
+      "address": "0x0d7e3902f344f4abe8c94e8a62c4b43f30630c0f",
+      "version": 2,
+      "blockNumber": 42345652,
+      "createdAt": 1771480651,
+      "description": "Hawks beat 76ers"
+    },
+    {
+      "address": "0xd598d380bf848998bba3d1264bec68b0c5664c19",
+      "version": 2,
+      "blockNumber": 42380656,
+      "createdAt": 1771550659,
+      "description": "kirill will generate $5,000 in revenue in march 2026"
+    },
+    {
+      "address": "0x48057957870dfe94b730c36149901272bdf1621c",
+      "version": 2,
+      "blockNumber": 42570470,
+      "createdAt": 1771930287,
+      "description": "BTC to $3M End Date: 2026/12/01 Judge:"
+    },
+    {
+      "address": "0x674b80f055ef5e4acd3b0caf784d00d13a77ff63",
+      "version": 2,
+      "blockNumber": 42570845,
+      "createdAt": 1771931037,
+      "description": "BTC to $3M End Date: 2026/12/01 Judge:"
+    },
+    {
+      "address": "0xfbdbf0db3cdec7ecf85598d30d7668f6ad10993d",
+      "version": 2,
+      "blockNumber": 42571924,
+      "createdAt": 1771933195,
+      "description": "I bet that WannaBet gets 100 bets in first week after launch"
+    },
+    {
+      "address": "0x48d6833b7883ab8446828c7a35369b4d2009de00",
+      "version": 2,
+      "blockNumber": 42572334,
+      "createdAt": 1771934015,
+      "description": "I bet that WannaBet gets 100 users in the first week after launch"
+    },
+    {
+      "address": "0xba17e925cfc5097eb9d3b6a595a1ef7f808e4447",
+      "version": 2,
+      "blockNumber": 42572585,
+      "createdAt": 1771934517,
+      "description": "I bet that WannaBet gets 100 users first week"
+    },
+    {
+      "address": "0xf038beca696b59d836f7cfe2a6d7131979aff71c",
+      "version": 2,
+      "blockNumber": 42732998,
+      "createdAt": 1772255343,
+      "description": "WannaBet dapp works for BYOW"
+    },
+    {
+      "address": "0xdfe177ef82ca43e51daed424e941190a021a9686",
+      "version": 2,
+      "blockNumber": 42737593,
+      "createdAt": 1772264533,
+      "description": "Wannabet dapp works today!"
+    },
+    {
+      "address": "0x80b329acfe6248ed12ac8158cc04aabb95037150",
+      "version": 2,
+      "blockNumber": 42739517,
+      "createdAt": 1772268381,
+      "description": "That I can send out 10 proposals eod"
+    },
+    {
+      "address": "0xa82293a5e94dc6be1ac2dc35c6056eae9c6c97be",
+      "version": 2,
+      "blockNumber": 42809356,
+      "createdAt": 1772408059,
+      "description": "3 or less people show up to sprinting tmr"
+    },
+    {
+      "address": "0x4465bca0d541ae19106892fadcfd16797633d01e",
+      "version": 2,
+      "blockNumber": 42893120,
+      "createdAt": 1772575587,
+      "description": "ETH won’t hit 10k"
+    },
+    {
+      "address": "0x8209c316c73d3a1001d8d25a4788d9ff46d81bb4",
+      "version": 2,
+      "blockNumber": 42950468,
+      "createdAt": 1772690283,
+      "description": "sam bets alex he can run 5K under 25 min by Friday"
+    },
+    {
+      "address": "0xdea929747dd24611f627c0d5cb0d98fb737fc3c5",
+      "version": 2,
+      "blockNumber": 42950511,
+      "createdAt": 1772690369,
+      "description": "Riley bets Alex: I run 5K under 27 min by Sunday"
+    },
+    {
+      "address": "0x45da35a9c5929b9d6bebb791902573e07111ba87",
+      "version": 2,
+      "blockNumber": 42950575,
+      "createdAt": 1772690497,
+      "description": "Messi scores over 20 points/goals this weekend"
+    },
+    {
+      "address": "0xd5d35332c469a632e082503902a22fbbf3c57c0f",
+      "version": 2,
+      "blockNumber": 42957118,
+      "createdAt": 1772703583,
+      "description": "I hit the gym every weekday this week — no skipping"
+    },
+    {
+      "address": "0x9e7fa968893601c3a80f09beb615e4c10e2a2b81",
+      "version": 2,
+      "blockNumber": 42957221,
+      "createdAt": 1772703789,
+      "description": "Bitcoin stays above $80k through the weekend"
+    },
+    {
+      "address": "0xbe35f2ed6546f95cb7b11d6efd38d3040c57c074",
+      "version": 2,
+      "blockNumber": 42957228,
+      "createdAt": 1772703803,
+      "description": "I run 5K in under 25 minutes by this Friday"
+    },
+    {
+      "address": "0x2d21ff8aa19c4018689ea10734b7a4cea5c701df",
+      "version": 2,
+      "blockNumber": 42957232,
+      "createdAt": 1772703811,
+      "description": "I finish a HYROX-style workout in under 75 minutes this weekend"
+    },
+    {
+      "address": "0x970c011dd313c75caae7dad9b5583d7c476b84a9",
+      "version": 2,
+      "blockNumber": 42959842,
+      "createdAt": 1772709031,
+      "description": "I finish writing and publish my post before Thursday"
+    },
+    {
+      "address": "0x6c013f4e697194d8527aa570b062025b899b13b0",
+      "version": 2,
+      "blockNumber": 43031993,
+      "createdAt": 1772853333,
+      "description": "Lakers beat the Nuggets tonight"
+    },
+    {
+      "address": "0x688c76076d6d02500cf4f076e16b3c85a5bdd924",
+      "version": 2,
+      "blockNumber": 43031999,
+      "createdAt": 1772853345,
+      "description": "LeBron scores 25+ points in Saturday's game"
+    },
+    {
+      "address": "0xa6bebef1e28018208c5803fac54be1a8cb4b658c",
+      "version": 2,
+      "blockNumber": 43032007,
+      "createdAt": 1772853361,
+      "description": "Celtics win their game tonight"
+    },
+    {
+      "address": "0x0561cb653c92abd407e9dca488eab2af32ea4545",
+      "version": 2,
+      "blockNumber": 43032122,
+      "createdAt": 1772853591,
+      "description": "BTC hits $90k before Sunday midnight"
+    },
+    {
+      "address": "0x99257c88959676e7e3fc8738e5cc75183c3e7f14",
+      "version": 2,
+      "blockNumber": 43032133,
+      "createdAt": 1772853613,
+      "description": "Arsenal win their Premier League match this weekend"
+    },
+    {
+      "address": "0xb3c7ca501bd5e2dc6cd471c9f465519c606df429",
+      "version": 2,
+      "blockNumber": 43032147,
+      "createdAt": 1772853641,
+      "description": "I hit the gym at least 4 days this week"
+    },
+    {
+      "address": "0x629f31b6dde640fadbb95878dc2cd18b0246f29b",
+      "version": 2,
+      "blockNumber": 43032680,
+      "createdAt": 1772854707,
+      "description": "Messi scores at least 1 goal for Inter Miami this week"
+    },
+    {
+      "address": "0xc0cc66fbbb63b32b908a9c7eb63f1a0e2eada5c1",
+      "version": 2,
+      "blockNumber": 43032683,
+      "createdAt": 1772854713,
+      "description": "Liverpool win this weekend's game vs Arsenal"
+    },
+    {
+      "address": "0x844c8a36a264fcd957b473ed2a6c92c3132274b1",
+      "version": 2,
+      "blockNumber": 43052065,
+      "createdAt": 1772893477,
+      "description": "no social media for 48 hours"
+    },
+    {
+      "address": "0xcbc9a61e535b76fd3d4fa409c15d3fc98c5b4095",
+      "version": 2,
+      "blockNumber": 43052068,
+      "createdAt": 1772893483,
+      "description": "SOL outperforms BTC"
+    },
+    {
+      "address": "0xa7d60115077dded06d06028de7014224c45b1548",
+      "version": 2,
+      "blockNumber": 43052071,
+      "createdAt": 1772893489,
+      "description": "ETH up 3%+"
+    },
+    {
+      "address": "0xdb1c1d40779461a6e18eb32e9dec013624dbcc46",
+      "version": 2,
+      "blockNumber": 43059949,
+      "createdAt": 1772909245,
+      "description": "no snooze for 1 week"
+    },
+    {
+      "address": "0x1572165df2af310c1790d47bd8029a8db559480e",
+      "version": 2,
+      "blockNumber": 43071468,
+      "createdAt": 1772932283,
+      "description": "BTC over $90k"
+    },
+    {
+      "address": "0x45c28c800079f30982f095e72fbf12eb44c181e3",
+      "version": 2,
+      "blockNumber": 43093431,
+      "createdAt": 1772976209,
+      "description": "up before 7am every day"
+    },
+    {
+      "address": "0x966d9e6f9c107159b2175a565d0e6f195363c52f",
+      "version": 2,
+      "blockNumber": 43093437,
+      "createdAt": 1772976221,
+      "description": "12 pull-ups in a row"
+    },
+    {
+      "address": "0xd8c3fd71c7048255f02d7d784f09873243405433",
+      "version": 2,
+      "blockNumber": 43101345,
+      "createdAt": 1772992037,
+      "description": "5K under 28 min"
+    },
+    {
+      "address": "0x558fe1cfd18ce72fcbf8efab4a137c83182f7260",
+      "version": 2,
+      "blockNumber": 43101347,
+      "createdAt": 1772992041,
+      "description": "gym 5 days this week"
+    },
+    {
+      "address": "0xdde4d234d7fff08988b3fdfac1dc73b3eea0d8ab",
+      "version": 2,
+      "blockNumber": 44104991,
+      "createdAt": 1774999329,
+      "description": "I will get a faster Hyrox Men's pro time than you"
+    },
+    {
+      "address": "0xe2f288df12527d692e70a490a5df096c1a946454",
+      "version": 2,
+      "blockNumber": 44431864,
+      "createdAt": 1775653075,
+      "description": "You will not go faster in hyrox pro solo than me"
+    },
+    {
+      "address": "0x4fbb1ec6ee0a788fe0e3b314b4a9fee06200a0f9",
+      "version": 2,
+      "blockNumber": 46597915,
+      "createdAt": 1779985177,
+      "description": "ENSv2 will launch by Sept 1, 2026. This means registering a name on mainnet from *.ens.domains."
+    },
+    {
+      "address": "0xfd50b9d6107969db704d93ad4d52416b40b62f24",
+      "version": 2,
+      "blockNumber": 47278359,
+      "createdAt": 1781346065,
+      "description": "Jangle doesn’t resign for 1 year"
+    }
+  ]
 }
