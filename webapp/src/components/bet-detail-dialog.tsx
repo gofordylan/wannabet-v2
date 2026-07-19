@@ -437,7 +437,7 @@ export function BetDetailDialog({
         if (!isOpen) handleReset()
       }}
     >
-      <DrawerContent className="fixed relative bottom-0 left-0 right-0 mx-auto flex max-h-[90dvh] max-w-3xl flex-col pb-[env(safe-area-inset-bottom)]">
+      <DrawerContent className="fixed bottom-0 left-0 right-0 mx-auto flex max-h-[90dvh] max-w-3xl flex-col pb-[env(safe-area-inset-bottom)]">
         {/* Accept Success Overlay */}
         {showAcceptSuccess && (
           <div className="bg-background/95 absolute inset-0 z-30 flex flex-col items-center justify-center rounded-t-[10px] px-6 py-12">
