@@ -56,4 +56,10 @@ export type Bet = {
   winner: BetUser | null
   /** The taker, once they have accepted the bet */
   acceptedBy: BetUser | null
+  /**
+   * True when the bet lapsed (accept or judging deadline passed) but nobody
+   * has called cancel() yet - the stakes are still held by the bet contract.
+   * Such bets display as CANCELLED but funds are reclaimable.
+   */
+  expired: boolean
 }

@@ -137,15 +137,23 @@ function BetHistory({ bet, onClose }: BetHistoryProps) {
           />
         )}
 
-        {/* Funds Returned - Show if cancelled */}
-        {bet.status === BetStatus.CANCELLED && (
-          <TimelineEvent
-            icon="💸"
-            title="Funds Returned"
-            description={`Funds returned to ${getDisplayName(bet.maker)}`}
-            link={contractLink}
-          />
-        )}
+        {/* Funds - Show if cancelled/expired */}
+        {bet.status === BetStatus.CANCELLED &&
+          (bet.expired ? (
+            <TimelineEvent
+              icon="💸"
+              title="Funds Reclaimable"
+              description="The stakes are still held by the bet contract and can be reclaimed"
+              link={contractLink}
+            />
+          ) : (
+            <TimelineEvent
+              icon="💸"
+              title="Funds Returned"
+              description={`Funds returned to ${getDisplayName(bet.maker)}`}
+              link={contractLink}
+            />
+          ))}
       </div>
 
       {/* Hide Details Link */}
@@ -206,8 +214,52 @@ function ActionCard({
     )
   }
 
-  // State 4: Cancelled
+  // State 4: Cancelled or expired
   if (bet.status === BetStatus.CANCELLED) {
+    // Expired: the deadline passed but the stakes are still in the contract
+    // until someone calls cancel() to reclaim them
+    if (bet.expired) {
+      const isParticipant = isMaker || isTaker || isJudge
+      return (
+        <div className="space-y-3 rounded-xl border bg-white px-4 py-3">
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-2xl">⌛</span>
+            <span className="text-wb-brown text-center text-sm">
+              {bet.acceptedBy
+                ? 'The judging deadline passed without a winner being picked'
+                : 'The bet expired without being accepted'}
+              . The stake{bet.acceptedBy ? 's are' : ' is'} still held by the
+              bet contract.
+            </span>
+          </div>
+          {isParticipant ? (
+            <>
+              <Button
+                onClick={onCancelBet}
+                className="bg-wb-coral hover:bg-wb-coral/80 w-full text-white"
+                disabled={isPending}
+              >
+                {isCancelling ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                {isCancelling ? 'Reclaiming...' : 'Reclaim Funds'}
+              </Button>
+              <p className="text-wb-taupe text-center text-xs">
+                Returns {bet.amount} USDC to {getDisplayName(bet.maker)}
+                {bet.acceptedBy
+                  ? ` and ${bet.amount} USDC to ${getDisplayName(bet.acceptedBy)}`
+                  : ''}
+              </p>
+            </>
+          ) : (
+            <p className="text-wb-taupe text-center text-xs">
+              Connect as a participant to reclaim the funds
+            </p>
+          )}
+        </div>
+      )
+    }
+
     return (
       <div className="rounded-xl border bg-white px-4 py-3">
         <div className="flex items-center justify-center gap-3">

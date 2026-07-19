@@ -177,15 +177,16 @@ async function discoverNewBets(
 // Bet state - read live from the bet contracts via multicall
 // =============================================================================
 
-// IBet.Status enum indices; EXPIRED (5) renders as CANCELLED
+// IBet.Status enum indices 0-4; index 5 (EXPIRED) is handled separately
+// because expired bets still hold the stakes until someone calls cancel()
 const STATUS_BY_INDEX: BetStatus[] = [
   BetStatus.PENDING,
   BetStatus.ACTIVE,
   BetStatus.JUDGING,
   BetStatus.RESOLVED,
   BetStatus.CANCELLED,
-  BetStatus.CANCELLED,
 ]
+const EXPIRED_INDEX = 5
 
 const JUDGING_WINDOW_SECONDS = 30 * 24 * 60 * 60
 
@@ -200,28 +201,37 @@ type ChainBet = {
   makerStake: string
   status: BetStatus
   accepted: boolean
+  expired: boolean
   createdAt: number // unix seconds
   acceptBy: number
   endsBy: number
   judgeDeadline: number
 }
 
-// Normalize status across contract versions (v1's bet() may not time-derive)
+// Normalize status across contract versions (v1's bet() may not time-derive).
+// `expired` means the bet lapsed but cancel() hasn't been called - the stakes
+// are still held by the contract; a stored CANCELLED means they were refunded.
 function deriveStatus(
-  rawStatus: BetStatus,
+  statusIndex: number,
   acceptBy: number,
   endsBy: number,
   judgeDeadline: number
-): BetStatus {
+): { status: BetStatus; expired: boolean } {
   const now = Math.floor(Date.now() / 1000)
+  if (statusIndex === EXPIRED_INDEX) {
+    return { status: BetStatus.CANCELLED, expired: true }
+  }
+  const rawStatus = STATUS_BY_INDEX[statusIndex] ?? BetStatus.PENDING
   if (rawStatus === BetStatus.PENDING && now > acceptBy) {
-    return BetStatus.CANCELLED
+    return { status: BetStatus.CANCELLED, expired: true }
   }
   if (rawStatus === BetStatus.ACTIVE || rawStatus === BetStatus.JUDGING) {
-    if (now > judgeDeadline) return BetStatus.CANCELLED
-    if (now > endsBy) return BetStatus.JUDGING
+    if (now > judgeDeadline) {
+      return { status: BetStatus.CANCELLED, expired: true }
+    }
+    if (now > endsBy) return { status: BetStatus.JUDGING, expired: false }
   }
-  return rawStatus
+  return { status: rawStatus, expired: false }
 }
 
 async function loadChainBets(): Promise<ChainBet[]> {
@@ -282,8 +292,12 @@ async function loadChainBets(): Promise<ChainBet[]> {
     const acceptBy = Number(state.acceptBy)
     const endsBy = Number(state.endsBy)
     const judgeDeadline = endsBy + JUDGING_WINDOW_SECONDS
-    const rawStatus = STATUS_BY_INDEX[state.status] ?? BetStatus.PENDING
-    const status = deriveStatus(rawStatus, acceptBy, endsBy, judgeDeadline)
+    const { status, expired } = deriveStatus(
+      state.status,
+      acceptBy,
+      endsBy,
+      judgeDeadline
+    )
     const accepted =
       state.status === 1 || // ACTIVE
       state.status === 2 || // JUDGING
@@ -300,6 +314,7 @@ async function loadChainBets(): Promise<ChainBet[]> {
       makerStake: state.makerStake.toString(),
       status,
       accepted,
+      expired,
       createdAt: bet.createdAt,
       acceptBy,
       endsBy,
@@ -419,6 +434,7 @@ export async function getBets(): Promise<Bet[]> {
         judgeDeadline: toMs(bet.judgeDeadline),
         winner: bet.winner ? getUser(bet.winner) : null,
         acceptedBy: bet.accepted ? taker : null,
+        expired: bet.expired,
       }
     })
     .sort((a, b) => b.createdAt - a.createdAt)
