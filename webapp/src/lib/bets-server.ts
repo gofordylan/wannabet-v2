@@ -21,6 +21,8 @@ import { base, mainnet } from 'viem/chains'
 
 import seed from '@/generated/bet-seed.json'
 
+import { createBetDiscovery } from './bet-discovery'
+
 // =============================================================================
 // RPC clients (free public endpoints, overridable via env)
 // =============================================================================
@@ -39,7 +41,10 @@ const MAINNET_RPC_URLS = [
 
 function makeTransport(envUrl: string | undefined, fallbackUrls: string[]) {
   const urls = envUrl ? [envUrl, ...fallbackUrls] : fallbackUrls
-  return fallback(urls.map((url) => http(url, { timeout: 10_000 })))
+  return fallback(
+    urls.map((url) => http(url, { timeout: 3_000, retryCount: 0 })),
+    { retryCount: 0 }
+  )
 }
 
 const baseClient = createPublicClient({
@@ -78,67 +83,19 @@ type DiscoveredBet = {
   description: string
 }
 
-// Public RPCs cap eth_getLogs ranges differently; learn a working chunk size
-// and reuse it across requests within the same lambda.
-let learnedChunkSize = 100_000n
-const MIN_CHUNK_SIZE = 2_000n
-// Per-request scan budget: the seed normally leaves only a tiny gap, but if it
-// is stale/partial we return what we found in time rather than hanging the
-// route. Later requests (and the next build) pick up where the seed left off.
-const SCAN_BUDGET_MS = 15_000
-
-async function getBetCreatedLogs(fromBlock: bigint, toBlock: bigint) {
-  const deadline = Date.now() + SCAN_BUDGET_MS
-  const logs = []
-  let from = fromBlock
-  while (from <= toBlock && Date.now() < deadline) {
-    let size = learnedChunkSize
-    for (;;) {
-      const to = from + size - 1n > toBlock ? toBlock : from + size - 1n
-      try {
-        const chunk = await baseClient.getLogs({
-          address: FACTORY_ADDRESSES,
-          event: BET_CREATED_EVENT,
-          fromBlock: from,
-          toBlock: to,
-        })
-        logs.push(...chunk)
-        from = to + 1n
-        break
-      } catch (err) {
-        if (size <= MIN_CHUNK_SIZE) throw err
-        size /= 2n
-        learnedChunkSize = size
-      }
-    }
-  }
-  if (from <= toBlock) {
-    console.warn(
-      `Bet scan budget exhausted at block ${from - 1n} of ${toBlock}; serving partial results`
-    )
-  }
-  return logs
-}
-
 // Read the description from the detailed BetCreated event the bet clone
 // emitted in its creation transaction
 async function fetchDescription(
   txHash: `0x${string}`,
   betAddress: string
 ): Promise<string> {
-  try {
-    const receipt = await baseClient.getTransactionReceipt({ hash: txHash })
-    const decoded = parseEventLogs({
-      abi: [BET_INITIALIZED_EVENT],
-      logs: receipt.logs,
-    })
-    const match = decoded.find(
-      (log) => log.address.toLowerCase() === betAddress
-    )
-    return match?.args.description ?? ''
-  } catch {
-    return ''
-  }
+  const receipt = await baseClient.getTransactionReceipt({ hash: txHash })
+  const decoded = parseEventLogs({
+    abi: [BET_INITIALIZED_EVENT],
+    logs: receipt.logs,
+  })
+  const match = decoded.find((log) => log.address.toLowerCase() === betAddress)
+  return match?.args.description ?? ''
 }
 
 async function discoverNewBets(
@@ -146,7 +103,12 @@ async function discoverNewBets(
   toBlock: bigint
 ): Promise<DiscoveredBet[]> {
   if (fromBlock > toBlock) return []
-  const logs = await getBetCreatedLogs(fromBlock, toBlock)
+  const logs = await baseClient.getLogs({
+    address: FACTORY_ADDRESSES,
+    event: BET_CREATED_EVENT,
+    fromBlock,
+    toBlock,
+  })
 
   // Fetch timestamps for the (few) blocks containing new bets
   const blockNumbers = [...new Set(logs.map((log) => log.blockNumber))]
@@ -234,28 +196,16 @@ function deriveStatus(
   return { status: rawStatus, expired: false }
 }
 
+const discoverBets = createBetDiscovery(
+  { scannedToBlock: seed.scannedToBlock, bets: seed.bets as DiscoveredBet[] },
+  discoverNewBets,
+  { onError: (error) => console.error('Incremental bet scan failed:', error) }
+)
+
 async function loadChainBets(): Promise<ChainBet[]> {
   const latestBlock = await baseClient.getBlockNumber()
 
-  // Seed (generated at build time) + incremental scan since then
-  const known = new Map<string, DiscoveredBet>()
-  for (const bet of seed.bets as DiscoveredBet[]) {
-    known.set(bet.address.toLowerCase(), bet)
-  }
-  try {
-    const discovered = await discoverNewBets(
-      BigInt(seed.scannedToBlock + 1),
-      latestBlock
-    )
-    for (const bet of discovered) {
-      if (!known.has(bet.address)) known.set(bet.address, bet)
-    }
-  } catch (err) {
-    // Serve seed bets rather than failing outright if the scan hiccups
-    console.error('Incremental bet scan failed:', err)
-  }
-
-  const bets = [...known.values()]
+  const bets = await discoverBets(latestBlock)
   if (bets.length === 0) return []
 
   // bet() exists on both contract versions and returns live, time-derived state

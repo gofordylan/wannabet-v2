@@ -8,6 +8,7 @@ export function useBets() {
     queryKey: ['bets'],
     queryFn: fetchBets,
     staleTime: 30000, // 30 seconds
-    refetchOnWindowFocus: false,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   })
 }
